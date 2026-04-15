@@ -47,13 +47,13 @@ export default function DashboardHome() {
                     Entradas
                   </span>
                 </div>
-                <p className="text-2xl font-bold mt-1">
+                <div className="text-2xl font-bold mt-1">
                   {entries === undefined ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
                     entries.length
                   )}
-                </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -65,13 +65,13 @@ export default function DashboardHome() {
                     Conceptos
                   </span>
                 </div>
-                <p className="text-2xl font-bold mt-1">
+                <div className="text-2xl font-bold mt-1">
                   {concepts === undefined ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
                     concepts.length
                   )}
-                </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -81,13 +81,13 @@ export default function DashboardHome() {
                   <Brain className="h-4 w-4 text-terracotta" />
                   <span className="text-sm text-muted-foreground">Pendientes</span>
                 </div>
-                <p className="text-2xl font-bold mt-1">
+                <div className="text-2xl font-bold mt-1">
                   {reviewCount === undefined ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
                     reviewCount
                   )}
-                </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -97,9 +97,9 @@ export default function DashboardHome() {
                   <Flame className="h-4 w-4 text-terracotta" />
                   <span className="text-sm text-muted-foreground">Racha</span>
                 </div>
-                <p className="text-2xl font-bold mt-1">
+                <div className="text-2xl font-bold mt-1">
                   {user?.profile?.streak ?? 0}
-                </p>
+                </div>
               </CardContent>
             </Card>
           </div>
