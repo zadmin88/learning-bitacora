@@ -8,12 +8,13 @@ import { PenLine } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { format, isToday, isYesterday } from "date-fns";
+import { es } from "date-fns/locale";
 
 function getDateLabel(timestamp: number): string {
   const date = new Date(timestamp);
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
-  return format(date, "EEEE, MMMM d, yyyy");
+  if (isToday(date)) return "Hoy";
+  if (isYesterday(date)) return "Ayer";
+  return format(date, "EEEE, d 'de' MMMM yyyy", { locale: es });
 }
 
 export function EntryTimeline() {
@@ -37,15 +38,15 @@ export function EntryTimeline() {
       <div className="text-center py-12">
         <PenLine className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
         <h3 className="font-display text-lg font-semibold mb-2">
-          No entries yet
+          Aún no hay entradas
         </h3>
         <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
-          Start writing about what you&apos;re learning in English. Each entry
-          becomes a source of personalized review material.
+          Comienza a escribir sobre lo que estás aprendiendo en inglés. Cada entrada
+          se convierte en material de repaso personalizado.
         </p>
         <Link href="/journal/new">
           <Button className="bg-terracotta hover:bg-terracotta-dark">
-            Write Your First Entry
+            Escribe Tu Primera Entrada
           </Button>
         </Link>
       </div>

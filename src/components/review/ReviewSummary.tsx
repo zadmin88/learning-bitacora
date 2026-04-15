@@ -28,7 +28,7 @@ export function ReviewSummary({
     <Card className="max-w-md mx-auto">
       <CardHeader className="text-center">
         <Trophy className="h-12 w-12 text-terracotta mx-auto mb-2" />
-        <CardTitle className="font-display text-2xl">Review Complete!</CardTitle>
+        <CardTitle className="font-display text-2xl">¡Repaso Completado!</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4 text-center">
@@ -37,14 +37,14 @@ export function ReviewSummary({
               <CheckCircle className="h-4 w-4" />
               <span className="text-2xl font-bold">{correctCount}</span>
             </div>
-            <p className="text-xs text-muted-foreground">Correct</p>
+            <p className="text-xs text-muted-foreground">Correctas</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-1 text-red-500">
               <XCircle className="h-4 w-4" />
               <span className="text-2xl font-bold">{incorrectCount}</span>
             </div>
-            <p className="text-xs text-muted-foreground">Incorrect</p>
+            <p className="text-xs text-muted-foreground">Incorrectas</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-1 text-muted-foreground">
@@ -53,32 +53,32 @@ export function ReviewSummary({
                 {minutes > 0 ? `${minutes}m` : `${seconds}s`}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">Time</p>
+            <p className="text-xs text-muted-foreground">Tiempo</p>
           </div>
         </div>
 
         <div className="text-center">
           <p className="text-3xl font-bold text-terracotta">{accuracy}%</p>
-          <p className="text-sm text-muted-foreground">Accuracy</p>
+          <p className="text-sm text-muted-foreground">Precisión</p>
         </div>
 
         <p className="text-sm text-center text-muted-foreground">
           {accuracy >= 80
-            ? "Excellent work! Your memory is getting stronger."
+            ? "¡Excelente trabajo! Tu memoria se está fortaleciendo."
             : accuracy >= 50
-              ? "Good effort! Keep reviewing to strengthen these concepts."
-              : "Don't worry — spaced repetition means you'll see these again soon."}
+              ? "¡Buen esfuerzo! Sigue repasando para fortalecer estos conceptos."
+              : "No te preocupes — la repetición espaciada hará que los veas pronto de nuevo."}
         </p>
 
         <div className="flex gap-2 pt-2">
           <Link href="/" className="flex-1">
             <Button variant="outline" className="w-full">
-              Dashboard
+              Inicio
             </Button>
           </Link>
           <Link href="/journal/new" className="flex-1">
             <Button className="w-full bg-terracotta hover:bg-terracotta-dark">
-              Write Entry
+              Escribir Entrada
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

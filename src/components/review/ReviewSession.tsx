@@ -49,13 +49,12 @@ export function ReviewSession() {
         setChallenge(result as ChallengeData);
       } catch (error) {
         console.error("Error generating challenge:", error);
-        // Fallback challenge
         const concept = queue?.find((c) => c._id === conceptId);
         if (concept) {
           setChallenge({
-            question: `What does "${concept.term}" mean?`,
+            question: `¿Qué significa "${concept.term}"?`,
             answer: concept.definition || concept.term,
-            explanation: `This concept was found in your journal entry: "${concept.context}"`,
+            explanation: `Este concepto fue encontrado en tu entrada de diario: "${concept.context}"`,
             challengeType: "free_recall",
           });
         }
@@ -92,7 +91,6 @@ export function ReviewSession() {
       wasCorrect: wasCorrect ?? false,
     });
 
-    // Move to next
     const nextIndex = currentIndex + 1;
     if (queue && nextIndex >= queue.length) {
       setSessionComplete(true);
@@ -122,15 +120,15 @@ export function ReviewSession() {
       <div className="text-center py-12 max-w-md mx-auto">
         <Brain className="h-12 w-12 text-sage mx-auto mb-4" />
         <h3 className="font-display text-lg font-semibold mb-2">
-          All caught up!
+          ¡Todo al día!
         </h3>
         <p className="text-muted-foreground text-sm mb-4">
-          No concepts are due for review right now. Write more journal entries to
-          create new concepts to review.
+          No hay conceptos pendientes de repaso. Escribe más entradas en tu diario para
+          crear nuevos conceptos que repasar.
         </p>
         <Link href="/journal/new">
           <Button className="bg-terracotta hover:bg-terracotta-dark">
-            Write an Entry
+            Escribir una Entrada
           </Button>
         </Link>
       </div>
@@ -181,7 +179,7 @@ export function ReviewSession() {
       {wasCorrect !== null && (
         <div className="animate-fade-in">
           <p className="text-sm text-muted-foreground mb-2 text-center">
-            How well did you remember this?
+            ¿Qué tan bien lo recordaste?
           </p>
           <RatingButtons onRate={handleRate} />
         </div>

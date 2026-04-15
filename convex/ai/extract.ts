@@ -6,7 +6,37 @@ import { internal } from "../_generated/api";
 import { v } from "convex/values";
 import { EXTRACTION_SYSTEM_PROMPT } from "../lib/prompts";
 
-const anthropic = new Anthropic();
+function extractMockConcepts(content: string) {
+  const words = content.split(/\s+/).filter((w) => w.length > 4);
+  const concepts = [];
+
+  // Extract some "vocabulary" from longer words
+  const uniqueWords = [...new Set(words)].slice(0, 3);
+  for (const word of uniqueWords) {
+    concepts.push({
+      type: "vocabulary",
+      term: word.toLowerCase().replace(/[^a-záéíóúñ]/gi, ""),
+      definition: `Palabra encontrada en tu entrada`,
+      context: content.substring(0, 80),
+      tags: ["journal"],
+      difficulty: 2,
+    });
+  }
+
+  // Add a grammar concept if entry is long enough
+  if (content.length > 50) {
+    concepts.push({
+      type: "grammar",
+      term: "sentence structure",
+      definition: "La estructura de oraciones en inglés sigue el orden SVO (Sujeto-Verbo-Objeto)",
+      context: content.substring(0, 80),
+      tags: ["grammar", "basics"],
+      difficulty: 2,
+    });
+  }
+
+  return concepts.filter((c) => c.term.length > 0);
+}
 
 export const processEntry = internalAction({
   args: {
@@ -16,22 +46,6 @@ export const processEntry = internalAction({
   },
   handler: async (ctx, args) => {
     try {
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        system: EXTRACTION_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: `Analyze this journal entry:\n\n${args.content}`,
-          },
-        ],
-      });
-
-      const text =
-        response.content[0].type === "text" ? response.content[0].text : "";
-
-      // Try to parse JSON, handle potential markdown wrapping
       let concepts: Array<{
         type: string;
         term: string;
@@ -41,17 +55,39 @@ export const processEntry = internalAction({
         difficulty?: number;
       }>;
 
-      try {
-        concepts = JSON.parse(text);
-      } catch {
-        // Try extracting JSON from markdown code block
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          concepts = JSON.parse(jsonMatch[0]);
-        } else {
-          console.error("Failed to parse extraction response:", text);
-          return;
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (apiKey) {
+        const anthropic = new Anthropic();
+        const response = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          system: EXTRACTION_SYSTEM_PROMPT,
+          messages: [
+            {
+              role: "user",
+              content: `Analyze this journal entry:\n\n${args.content}`,
+            },
+          ],
+        });
+
+        const text =
+          response.content[0].type === "text" ? response.content[0].text : "";
+
+        try {
+          concepts = JSON.parse(text);
+        } catch {
+          const jsonMatch = text.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            concepts = JSON.parse(jsonMatch[0]);
+          } else {
+            console.error("Failed to parse extraction response:", text);
+            return;
+          }
         }
+      } else {
+        // Mock mode for testing without API key
+        console.log("ANTHROPIC_API_KEY not set — using mock extraction");
+        concepts = extractMockConcepts(args.content);
       }
 
       for (const c of concepts) {

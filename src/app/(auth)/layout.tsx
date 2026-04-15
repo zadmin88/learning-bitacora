@@ -11,7 +11,7 @@ export default function AuthLayout({
             Bitácora
           </h1>
           <p className="text-charcoal-light mt-2">
-            Your English Learning Journal
+            Tu Diario de Aprendizaje de Inglés
           </p>
         </div>
         {children}

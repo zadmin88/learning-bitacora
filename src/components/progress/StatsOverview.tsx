@@ -24,37 +24,37 @@ interface StatsOverviewProps {
 export function StatsOverview({ stats }: StatsOverviewProps) {
   const items = [
     {
-      label: "Journal Entries",
+      label: "Entradas de Diario",
       value: stats.totalEntries,
       icon: BookOpen,
       color: "text-terracotta",
     },
     {
-      label: "Concepts Learned",
+      label: "Conceptos Aprendidos",
       value: stats.totalConcepts,
       icon: Brain,
       color: "text-sage",
     },
     {
-      label: "Mastered",
+      label: "Dominados",
       value: stats.masteredConcepts,
       icon: Trophy,
       color: "text-amber-500",
     },
     {
-      label: "Total Reviews",
+      label: "Repasos Totales",
       value: stats.totalReviews,
       icon: Target,
       color: "text-blue-500",
     },
     {
-      label: "Accuracy",
+      label: "Precisión",
       value: `${stats.accuracy}%`,
       icon: CheckCircle,
       color: "text-sage",
     },
     {
-      label: "Day Streak",
+      label: "Días de Racha",
       value: stats.streak,
       icon: Flame,
       color: "text-terracotta",

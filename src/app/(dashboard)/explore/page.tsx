@@ -49,17 +49,17 @@ export default function ExplorePage() {
 
   return (
     <>
-      <TopBar title="Explore" />
+      <TopBar title="Explorar" />
       <div className="p-4 md:p-6 max-w-3xl mx-auto">
         <Tabs defaultValue="search">
           <TabsList>
             <TabsTrigger value="search" className="gap-2">
               <Search className="h-4 w-4" />
-              Search
+              Buscar
             </TabsTrigger>
             <TabsTrigger value="concepts" className="gap-2">
               <BookOpen className="h-4 w-4" />
-              Concepts
+              Conceptos
             </TabsTrigger>
           </TabsList>
 
@@ -72,11 +72,11 @@ export default function ExplorePage() {
               <div className="text-center py-12 text-muted-foreground">
                 <Search className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="text-sm">
-                  Ask questions about your learning history in natural language.
+                  Haz preguntas sobre tu historial de aprendizaje en lenguaje natural.
                 </p>
                 <p className="text-xs mt-1">
-                  Try: &quot;What idioms have I learned?&quot; or &quot;Grammar
-                  rules about prepositions&quot;
+                  Prueba: &quot;¿Qué modismos he aprendido?&quot; o &quot;Reglas de
+                  gramática sobre preposiciones&quot;
                 </p>
               </div>
             )}
@@ -84,13 +84,13 @@ export default function ExplorePage() {
 
           <TabsContent value="concepts" className="space-y-6 mt-4">
             {concepts === undefined ? (
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <p className="text-sm text-muted-foreground">Cargando...</p>
             ) : concepts.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="text-sm">
-                  No concepts yet. Write journal entries to start extracting
-                  concepts.
+                  Aún no hay conceptos. Escribe entradas en tu diario para comenzar a
+                  extraer conceptos.
                 </p>
               </div>
             ) : (

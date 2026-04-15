@@ -20,12 +20,12 @@ export default function LandingPage() {
             Bitácora
           </h1>
           <p className="text-xl md:text-2xl text-charcoal-light max-w-2xl mx-auto mb-4">
-            Your AI-powered English learning journal
+            Tu diario de aprendizaje de inglés potenciado por IA
           </p>
           <p className="text-base text-muted-foreground max-w-xl mx-auto mb-8">
-            Write about what you learn. AI extracts concepts, corrects your
-            writing, and creates personalized review challenges that fight the
-            forgetting curve.
+            Escribe sobre lo que aprendes. La IA extrae conceptos, corrige tu
+            escritura y crea desafíos de repaso personalizados que combaten la
+            curva del olvido.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link href="/register">
@@ -33,13 +33,13 @@ export default function LandingPage() {
                 size="lg"
                 className="bg-terracotta hover:bg-terracotta-dark text-lg px-8"
               >
-                Start Learning
+                Comenzar a Aprender
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link href="/login">
               <Button size="lg" variant="outline" className="text-lg px-8">
-                Sign In
+                Iniciar Sesión
               </Button>
             </Link>
           </div>
@@ -50,23 +50,23 @@ export default function LandingPage() {
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-5xl mx-auto px-4">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-center text-charcoal mb-12">
-            How it works
+            Cómo funciona
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<BookOpen className="h-8 w-8 text-terracotta" />}
-              title="Write"
-              description="Journal about what you're learning in English. Write freely — there's no wrong answer."
+              title="Escribe"
+              description="Escribe en tu diario sobre lo que estás aprendiendo en inglés. Escribe libremente — no hay respuesta incorrecta."
             />
             <FeatureCard
               icon={<Sparkles className="h-8 w-8 text-sage" />}
-              title="Extract"
-              description="AI analyzes your writing, extracts vocabulary, grammar, and idioms, and corrects any errors."
+              title="Extrae"
+              description="La IA analiza tu escritura, extrae vocabulario, gramática y modismos, y corrige cualquier error."
             />
             <FeatureCard
               icon={<Brain className="h-8 w-8 text-terracotta" />}
-              title="Review"
-              description="Spaced repetition challenges from your own entries. Review at the perfect moment to remember forever."
+              title="Repasa"
+              description="Desafíos de repetición espaciada basados en tus propias entradas. Repasa en el momento perfecto para recordar para siempre."
             />
           </div>
         </div>
@@ -76,16 +76,16 @@ export default function LandingPage() {
       <section className="py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="font-display text-3xl font-bold text-center text-charcoal mb-12">
-            Why Bitácora?
+            ¿Por qué Bitácora?
           </h2>
           <div className="space-y-4">
             {[
-              "Personal knowledge base that remembers everything across sessions",
-              "Proactive review scheduling — it tells you when to review",
-              "Challenges from your own writing, not generic flashcards",
-              "Writing itself improves retention (research-backed)",
-              "Semantic search over your entire learning history",
-              "Beautiful, distraction-free writing experience",
+              "Base de conocimiento personal que recuerda todo entre sesiones",
+              "Programación proactiva de repasos — te dice cuándo repasar",
+              "Desafíos basados en tu propia escritura, no tarjetas genéricas",
+              "Escribir mejora la retención (respaldado por investigación)",
+              "Búsqueda semántica sobre todo tu historial de aprendizaje",
+              "Experiencia de escritura hermosa y sin distracciones",
             ].map((benefit, i) => (
               <div
                 key={i}
@@ -103,18 +103,18 @@ export default function LandingPage() {
       <section className="py-16 md:py-24 bg-charcoal text-cream">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Start building your English memory today
+            Empieza a construir tu memoria del inglés hoy
           </h2>
           <p className="text-cream-dark text-lg mb-8">
-            70% of what you learn is forgotten within 24 hours. Bitácora changes
-            that.
+            El 70% de lo que aprendes se olvida en 24 horas. Bitácora cambia
+            eso.
           </p>
           <Link href="/register">
             <Button
               size="lg"
               className="bg-terracotta hover:bg-terracotta-dark text-lg px-8"
             >
-              Create Free Account
+              Crear Cuenta Gratis
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
@@ -127,7 +127,7 @@ export default function LandingPage() {
           <p className="font-display text-charcoal font-semibold mb-1">
             Bitácora
           </p>
-          <p>Your English Learning Journal — Powered by AI</p>
+          <p>Tu Diario de Aprendizaje de Inglés — Potenciado por IA</p>
         </div>
       </footer>
     </div>

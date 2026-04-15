@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ConceptBadge } from "./ConceptBadge";
 import { CorrectionHighlight } from "./CorrectionHighlight";
 import { formatDistanceToNow, format } from "date-fns";
+import { es } from "date-fns/locale";
 import { ChevronDown, ChevronUp, BookOpen, CheckCircle } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 
@@ -44,10 +45,10 @@ export function EntryCard({ entry }: { entry: Entry }) {
         {/* Header */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{format(entry.createdAt, "MMM d, yyyy")}</span>
+            <span>{format(entry.createdAt, "d MMM yyyy", { locale: es })}</span>
             <span>•</span>
             <span>
-              {formatDistanceToNow(entry.createdAt, { addSuffix: true })}
+              {formatDistanceToNow(entry.createdAt, { addSuffix: true, locale: es })}
             </span>
             {entry.mood && <span>{entry.mood}</span>}
           </div>
@@ -94,7 +95,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
         {expanded && concepts && concepts.length > 0 && (
           <div className="mt-3">
             <h4 className="text-sm font-medium text-muted-foreground mb-2">
-              Extracted Concepts
+              Conceptos Extraídos
             </h4>
             <div className="flex flex-wrap gap-1.5">
               {concepts.map((concept) => (
@@ -115,11 +116,11 @@ export function EntryCard({ entry }: { entry: Entry }) {
         >
           {expanded ? (
             <>
-              Show less <ChevronUp className="h-3 w-3" />
+              Ver menos <ChevronUp className="h-3 w-3" />
             </>
           ) : (
             <>
-              Show more <ChevronDown className="h-3 w-3" />
+              Ver más <ChevronDown className="h-3 w-3" />
             </>
           )}
         </button>

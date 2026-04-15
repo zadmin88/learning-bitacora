@@ -11,21 +11,21 @@ import { Badge } from "@/components/ui/badge";
 import { Send, Sparkles } from "lucide-react";
 
 const MOOD_OPTIONS = [
-  { emoji: "😊", label: "Great" },
-  { emoji: "🤔", label: "Reflective" },
-  { emoji: "😤", label: "Frustrated" },
-  { emoji: "🎉", label: "Excited" },
-  { emoji: "😴", label: "Tired" },
-  { emoji: "💪", label: "Motivated" },
+  { emoji: "😊", label: "Genial" },
+  { emoji: "🤔", label: "Reflexivo" },
+  { emoji: "😤", label: "Frustrado" },
+  { emoji: "🎉", label: "Emocionado" },
+  { emoji: "😴", label: "Cansado" },
+  { emoji: "💪", label: "Motivado" },
 ];
 
 const WRITING_PROMPTS = [
-  "What new English word or phrase did you learn today?",
-  "Describe a conversation you had (or wanted to have) in English.",
-  "Write about a mistake you made and what you learned from it.",
-  "Explain a concept from your work/studies using English.",
-  "What English content did you consume today (podcast, article, video)?",
-  "Write about your goals for learning English this week.",
+  "¿Qué palabra o frase nueva en inglés aprendiste hoy?",
+  "Describe una conversación que tuviste (o quisiste tener) en inglés.",
+  "Escribe sobre un error que cometiste y qué aprendiste de él.",
+  "Explica un concepto de tu trabajo/estudios usando inglés.",
+  "¿Qué contenido en inglés consumiste hoy (podcast, artículo, video)?",
+  "Escribe sobre tus metas para aprender inglés esta semana.",
 ];
 
 export function EntryEditor() {
@@ -60,13 +60,13 @@ export function EntryEditor() {
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="h-4 w-4 text-terracotta" />
               <span className="text-sm font-medium text-terracotta">
-                Writing Prompts
+                Ideas para Escribir
               </span>
               <button
                 onClick={() => setShowPrompts(false)}
                 className="ml-auto text-xs text-muted-foreground hover:text-foreground"
               >
-                Hide
+                Ocultar
               </button>
             </div>
             <div className="space-y-2">
@@ -88,7 +88,7 @@ export function EntryEditor() {
       <Card>
         <CardContent className="pt-6">
           <Textarea
-            placeholder="Write about what you learned today in English..."
+            placeholder="Escribe sobre lo que aprendiste hoy en inglés..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="min-h-[300px] resize-none border-0 p-0 focus-visible:ring-0 text-base leading-relaxed"
@@ -118,7 +118,7 @@ export function EntryEditor() {
 
             {/* Word count */}
             <span className="text-xs text-muted-foreground">
-              {wordCount} {wordCount === 1 ? "word" : "words"}
+              {wordCount} {wordCount === 1 ? "palabra" : "palabras"}
             </span>
           </div>
 
@@ -128,11 +128,11 @@ export function EntryEditor() {
             className="bg-terracotta hover:bg-terracotta-dark"
           >
             {loading ? (
-              "Saving..."
+              "Guardando..."
             ) : (
               <>
                 <Send className="mr-2 h-4 w-4" />
-                Save Entry
+                Guardar Entrada
               </>
             )}
           </Button>
@@ -141,8 +141,8 @@ export function EntryEditor() {
 
       {/* Info */}
       <p className="text-xs text-muted-foreground text-center">
-        After saving, AI will analyze your entry, extract concepts, and check
-        your writing. This usually takes a few seconds.
+        Después de guardar, la IA analizará tu entrada, extraerá conceptos y
+        revisará tu escritura. Esto suele tomar unos segundos.
       </p>
     </div>
   );

@@ -8,11 +8,11 @@ import { api } from "../../../convex/_generated/api";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Home", icon: BookOpen },
-  { href: "/journal", label: "Journal", icon: PenLine },
-  { href: "/review", label: "Review", icon: Brain },
-  { href: "/explore", label: "Explore", icon: Search },
-  { href: "/progress", label: "Progress", icon: BarChart3 },
+  { href: "/", label: "Inicio", icon: BookOpen },
+  { href: "/journal", label: "Diario", icon: PenLine },
+  { href: "/review", label: "Repasar", icon: Brain },
+  { href: "/explore", label: "Explorar", icon: Search },
+  { href: "/progress", label: "Progreso", icon: BarChart3 },
 ];
 
 export function MobileNav() {
@@ -37,7 +37,7 @@ export function MobileNav() {
             >
               <item.icon className="h-5 w-5" />
               <span>{item.label}</span>
-              {item.label === "Review" &&
+              {item.label === "Repasar" &&
                 reviewCount !== undefined &&
                 reviewCount > 0 && (
                   <span className="absolute -top-1 right-0 bg-terracotta text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">

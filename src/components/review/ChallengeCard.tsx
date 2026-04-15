@@ -43,10 +43,10 @@ export function ChallengeCard({
 
   const typeLabel =
     challenge.challengeType === "fill_gap"
-      ? "Fill in the Gap"
+      ? "Completar el Espacio"
       : challenge.challengeType === "free_recall"
-        ? "Free Recall"
-        : "Error Correction";
+        ? "Recuerdo Libre"
+        : "Corrección de Errores";
 
   return (
     <Card className="w-full">
@@ -78,7 +78,7 @@ export function ChallengeCard({
                 className="text-sm text-terracotta hover:underline flex items-center gap-1"
               >
                 <Lightbulb className="h-3 w-3" />
-                Show hint
+                Mostrar pista
               </button>
             )}
           </div>
@@ -90,7 +90,7 @@ export function ChallengeCard({
             <Input
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="Type your answer..."
+              placeholder="Escribe tu respuesta..."
               className="text-base"
               autoFocus
             />
@@ -100,7 +100,7 @@ export function ChallengeCard({
                 className="bg-terracotta hover:bg-terracotta-dark flex-1"
                 disabled={!userAnswer.trim()}
               >
-                Check Answer
+                Verificar Respuesta
               </Button>
               <Button
                 type="button"
@@ -108,7 +108,7 @@ export function ChallengeCard({
                 onClick={handleReveal}
               >
                 <Eye className="h-4 w-4 mr-1" />
-                Reveal
+                Revelar
               </Button>
             </div>
           </form>
@@ -119,16 +119,16 @@ export function ChallengeCard({
           <div className="space-y-3 animate-fade-in">
             {userAnswer && (
               <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm text-muted-foreground">Your answer:</p>
+                <p className="text-sm text-muted-foreground">Tu respuesta:</p>
                 <p className="font-medium">{userAnswer}</p>
               </div>
             )}
             <div className="p-3 bg-sage/10 rounded-md border border-sage/20">
-              <p className="text-sm text-muted-foreground">Correct answer:</p>
+              <p className="text-sm text-muted-foreground">Respuesta correcta:</p>
               <p className="font-medium text-sage-dark">{challenge.answer}</p>
             </div>
             <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm text-muted-foreground">Explanation:</p>
+              <p className="text-sm text-muted-foreground">Explicación:</p>
               <p className="text-sm">{challenge.explanation}</p>
             </div>
 
@@ -139,7 +139,7 @@ export function ChallengeCard({
                 className="flex-1 bg-sage hover:bg-sage-dark"
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
-                I got it right
+                Lo sabía
               </Button>
               <Button
                 onClick={() => onAnswer(false)}
@@ -147,7 +147,7 @@ export function ChallengeCard({
                 className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
               >
                 <XCircle className="h-4 w-4 mr-2" />
-                I got it wrong
+                No lo sabía
               </Button>
             </div>
           </div>

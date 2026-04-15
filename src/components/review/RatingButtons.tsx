@@ -8,10 +8,10 @@ interface RatingButtonsProps {
 }
 
 const ratings = [
-  { value: 1, label: "Again", color: "bg-red-500 hover:bg-red-600", desc: "Forgot completely" },
-  { value: 2, label: "Hard", color: "bg-orange-500 hover:bg-orange-600", desc: "Recalled with difficulty" },
-  { value: 3, label: "Good", color: "bg-sage hover:bg-sage-dark", desc: "Recalled correctly" },
-  { value: 4, label: "Easy", color: "bg-blue-500 hover:bg-blue-600", desc: "Too easy" },
+  { value: 1, label: "Otra vez", color: "bg-red-500 hover:bg-red-600", desc: "Lo olvidé por completo" },
+  { value: 2, label: "Difícil", color: "bg-orange-500 hover:bg-orange-600", desc: "Recordé con dificultad" },
+  { value: 3, label: "Bien", color: "bg-sage hover:bg-sage-dark", desc: "Recordé correctamente" },
+  { value: 4, label: "Fácil", color: "bg-blue-500 hover:bg-blue-600", desc: "Demasiado fácil" },
 ];
 
 export function RatingButtons({ onRate, disabled }: RatingButtonsProps) {

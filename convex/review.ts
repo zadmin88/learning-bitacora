@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUser } from "./lib/utils";
+import { fsrs, Rating } from "ts-fsrs";
 
 export const getQueue = query({
   args: {},
@@ -59,8 +60,6 @@ export const submitReview = mutation({
       throw new Error("Concept not found");
     }
 
-    // Import FSRS utilities inline (ts-fsrs is pure JS)
-    const { fsrs, createEmptyCard, Rating, State } = await import("ts-fsrs");
     const f = fsrs();
 
     // Build card from concept state
@@ -86,9 +85,9 @@ export const submitReview = mutation({
     };
 
     const now = new Date();
-    const scheduling = f.repeat(card as any, now);
-    const selected = scheduling[ratingMap[args.rating] as Rating];
-    const updated = selected.card;
+    const grade = ratingMap[args.rating] as typeof Rating.Again;
+    const result = f.next(card as any, now, grade);
+    const updated = result.card;
 
     // Patch concept with new FSRS state
     await ctx.db.patch(args.conceptId, {

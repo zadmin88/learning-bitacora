@@ -21,12 +21,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Home", icon: BookOpen },
-  { href: "/journal", label: "Journal", icon: PenLine },
-  { href: "/review", label: "Review", icon: Brain },
-  { href: "/explore", label: "Explore", icon: Search },
-  { href: "/progress", label: "Progress", icon: BarChart3 },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", label: "Inicio", icon: BookOpen },
+  { href: "/journal", label: "Diario", icon: PenLine },
+  { href: "/review", label: "Repasar", icon: Brain },
+  { href: "/explore", label: "Explorar", icon: Search },
+  { href: "/progress", label: "Progreso", icon: BarChart3 },
+  { href: "/settings", label: "Ajustes", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -50,12 +50,12 @@ export function Sidebar() {
       {user && (
         <div className="px-6 py-4 border-b border-border">
           <p className="font-medium text-sm text-foreground truncate">
-            {user.name || user.email || "Learner"}
+            {user.name || user.email || "Estudiante"}
           </p>
           {user.profile && (
             <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
               <Flame className="h-3 w-3 text-terracotta" />
-              <span>{user.profile.streak} day streak</span>
+              <span>{user.profile.streak} días de racha</span>
             </div>
           )}
         </div>
@@ -80,7 +80,7 @@ export function Sidebar() {
             >
               <item.icon className="h-4 w-4" />
               <span>{item.label}</span>
-              {item.label === "Review" &&
+              {item.label === "Repasar" &&
                 reviewCount !== undefined &&
                 reviewCount > 0 && (
                   <Badge
@@ -103,7 +103,7 @@ export function Sidebar() {
           onClick={() => signOut()}
         >
           <LogOut className="h-4 w-4" />
-          Sign out
+          Cerrar sesión
         </Button>
       </div>
     </aside>

@@ -1,7 +1,8 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -15,13 +16,11 @@ export function TopBar({ title }: { title?: string }) {
     <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border px-4 md:px-6 h-14 flex items-center gap-4">
       {/* Mobile menu trigger */}
       <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
+        <SheetTrigger className={cn("md:hidden", buttonVariants({ variant: "ghost", size: "icon" }))}>
+          <Menu className="h-5 w-5" />
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-64">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <SheetTitle className="sr-only">Navegación</SheetTitle>
           <Sidebar />
         </SheetContent>
       </Sheet>

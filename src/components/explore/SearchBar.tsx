@@ -27,7 +27,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search your learning history..."
+          placeholder="Busca en tu historial de aprendizaje..."
           className="pl-10"
           disabled={isLoading}
         />
@@ -40,7 +40,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          "Search"
+          "Buscar"
         )}
       </Button>
     </form>

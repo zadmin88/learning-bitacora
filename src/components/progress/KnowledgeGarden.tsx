@@ -9,10 +9,10 @@ interface KnowledgeGardenProps {
 }
 
 const stateConfig = [
-  { key: "new", label: "Seeds", emoji: "🌱", color: "bg-amber-100 text-amber-700" },
-  { key: "learning", label: "Sprouts", emoji: "🌿", color: "bg-green-100 text-green-700" },
-  { key: "review", label: "Flowers", emoji: "🌸", color: "bg-pink-100 text-pink-700" },
-  { key: "relearning", label: "Replanting", emoji: "🔄", color: "bg-orange-100 text-orange-700" },
+  { key: "new", label: "Semillas", emoji: "🌱", color: "bg-amber-100 text-amber-700" },
+  { key: "learning", label: "Brotes", emoji: "🌿", color: "bg-green-100 text-green-700" },
+  { key: "review", label: "Flores", emoji: "🌸", color: "bg-pink-100 text-pink-700" },
+  { key: "relearning", label: "Replantando", emoji: "🔄", color: "bg-orange-100 text-orange-700" },
 ];
 
 export function KnowledgeGarden({ breakdown }: KnowledgeGardenProps) {
@@ -22,13 +22,13 @@ export function KnowledgeGarden({ breakdown }: KnowledgeGardenProps) {
     <Card>
       <CardHeader>
         <CardTitle className="font-display text-lg">
-          Knowledge Garden
+          Jardín del Conocimiento
         </CardTitle>
       </CardHeader>
       <CardContent>
         {total === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Plant your first seeds by writing journal entries!
+            ¡Planta tus primeras semillas escribiendo entradas en tu diario!
           </p>
         ) : (
           <div className="space-y-4">
@@ -41,7 +41,7 @@ export function KnowledgeGarden({ breakdown }: KnowledgeGardenProps) {
                     <span
                       key={`${key}-${i}`}
                       className="text-lg transition-transform hover:scale-125"
-                      title={`${key} concept`}
+                      title={`concepto ${key}`}
                     >
                       {emoji}
                     </span>

@@ -30,7 +30,7 @@ export function CorrectionHighlight({
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-muted-foreground">
-        Writing Feedback
+        Retroalimentación de Escritura
       </h4>
       {corrections.map((correction, i) => (
         <div

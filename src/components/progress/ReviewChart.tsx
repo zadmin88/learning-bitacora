@@ -22,7 +22,7 @@ interface ReviewChartProps {
 export function ReviewChart({ data }: ReviewChartProps) {
   const formattedData = data.map((d) => ({
     ...d,
-    label: new Date(d.date).toLocaleDateString("en-US", {
+    label: new Date(d.date).toLocaleDateString("es-ES", {
       month: "short",
       day: "numeric",
     }),
@@ -32,13 +32,13 @@ export function ReviewChart({ data }: ReviewChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="font-display text-lg">
-          Review Activity (30 days)
+          Actividad de Repaso (30 días)
         </CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
-            No review data yet. Complete some reviews to see your activity.
+            Aún no hay datos de repaso. Completa algunos repasos para ver tu actividad.
           </p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>

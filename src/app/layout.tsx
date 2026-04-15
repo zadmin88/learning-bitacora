@@ -17,9 +17,9 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "Bitácora — Your English Learning Journal",
+  title: "Bitácora — Tu Diario de Aprendizaje de Inglés",
   description:
-    "An AI-powered learning journal that fights the forgetting curve with spaced repetition, active recall, and semantic search.",
+    "Un diario de aprendizaje potenciado por IA que combate la curva del olvido con repetición espaciada, recuerdo activo y búsqueda semántica.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${lora.variable} ${sourceSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

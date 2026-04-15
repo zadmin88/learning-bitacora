@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Sparkles } from "lucide-react";
 import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface SearchResult {
   answer: string;
@@ -24,7 +25,7 @@ export function SearchResults({ result }: { result: SearchResult }) {
           <div className="flex items-start gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-terracotta mt-0.5" />
             <span className="text-sm font-medium text-terracotta">
-              AI Answer
+              Respuesta de IA
             </span>
           </div>
           <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
@@ -37,7 +38,7 @@ export function SearchResults({ result }: { result: SearchResult }) {
       {result.entries.length > 0 && (
         <div>
           <h3 className="text-sm font-medium text-muted-foreground mb-3">
-            Related Entries ({result.entries.length})
+            Entradas Relacionadas ({result.entries.length})
           </h3>
           <div className="space-y-2">
             {result.entries.map((entry) => (
@@ -45,11 +46,11 @@ export function SearchResults({ result }: { result: SearchResult }) {
                 <CardContent className="pt-3 pb-3">
                   <p className="text-sm line-clamp-2">{entry.content}</p>
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                    <span>{format(entry.createdAt, "MMM d, yyyy")}</span>
+                    <span>{format(entry.createdAt, "d MMM yyyy", { locale: es })}</span>
                     {entry.conceptCount > 0 && (
                       <span className="flex items-center gap-1 text-sage">
                         <BookOpen className="h-3 w-3" />
-                        {entry.conceptCount} concepts
+                        {entry.conceptCount} conceptos
                       </span>
                     )}
                   </div>

@@ -33,7 +33,7 @@ export default function RegisterPage() {
       await signIn("password", { email, password, name, flow: "signUp" });
       router.push("/");
     } catch {
-      setError("Could not create account. Email may already be in use.");
+      setError("No se pudo crear la cuenta. Es posible que el correo ya esté en uso.");
     } finally {
       setLoading(false);
     }
@@ -42,9 +42,9 @@ export default function RegisterPage() {
   return (
     <Card className="border-cream-dark">
       <CardHeader>
-        <CardTitle className="font-display text-2xl">Create account</CardTitle>
+        <CardTitle className="font-display text-2xl">Crear cuenta</CardTitle>
         <CardDescription>
-          Start building your personal learning journal
+          Comienza a construir tu diario personal de aprendizaje
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -55,29 +55,29 @@ export default function RegisterPage() {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Nombre</Label>
             <Input
               id="name"
               type="text"
-              placeholder="Your name"
+              placeholder="Tu nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo electrónico</Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="tu@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Contraseña</Label>
             <Input
               id="password"
               type="password"
@@ -95,15 +95,15 @@ export default function RegisterPage() {
             className="w-full bg-terracotta hover:bg-terracotta-dark"
             disabled={loading}
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
           </Button>
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            ¿Ya tienes una cuenta?{" "}
             <Link
               href="/login"
               className="text-terracotta hover:underline font-medium"
             >
-              Sign in
+              Iniciar sesión
             </Link>
           </p>
         </CardFooter>

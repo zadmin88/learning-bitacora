@@ -13,25 +13,25 @@ export default function SettingsPage() {
 
   return (
     <>
-      <TopBar title="Settings" />
+      <TopBar title="Ajustes" />
       <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-6">
-        <h1 className="font-display text-2xl font-bold">Settings</h1>
+        <h1 className="font-display text-2xl font-bold">Ajustes</h1>
 
         <Card>
           <CardHeader>
             <CardTitle className="font-display text-lg flex items-center gap-2">
               <User className="h-5 w-5" />
-              Account
+              Cuenta
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm text-muted-foreground">Name</label>
-              <p className="font-medium">{user?.name || "Not set"}</p>
+              <label className="text-sm text-muted-foreground">Nombre</label>
+              <p className="font-medium">{user?.name || "No establecido"}</p>
             </div>
             <div>
-              <label className="text-sm text-muted-foreground">Email</label>
-              <p className="font-medium">{user?.email || "Not set"}</p>
+              <label className="text-sm text-muted-foreground">Correo electrónico</label>
+              <p className="font-medium">{user?.email || "No establecido"}</p>
             </div>
           </CardContent>
         </Card>
@@ -44,7 +44,7 @@ export default function SettingsPage() {
               className="w-full"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
+              Cerrar Sesión
             </Button>
           </CardContent>
         </Card>

@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Brain, PenLine, Flame, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
 
 export default function DashboardHome() {
   const { user } = useCurrentUser();
@@ -23,16 +24,16 @@ export default function DashboardHome() {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 pb-16 md:pb-0">
-        <TopBar title="Dashboard" />
+        <TopBar title="Inicio" />
         <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
           {/* Welcome section */}
           <div>
             <h1 className="font-display text-3xl font-bold text-foreground">
-              Welcome back
+              Bienvenido de vuelta
               {user?.name ? `, ${user.name}` : ""}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Keep writing, keep learning. Every entry strengthens your English.
+              Sigue escribiendo, sigue aprendiendo. Cada entrada fortalece tu inglés.
             </p>
           </div>
 
@@ -43,7 +44,7 @@ export default function DashboardHome() {
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-terracotta" />
                   <span className="text-sm text-muted-foreground">
-                    Entries
+                    Entradas
                   </span>
                 </div>
                 <p className="text-2xl font-bold mt-1">
@@ -61,7 +62,7 @@ export default function DashboardHome() {
                 <div className="flex items-center gap-2">
                   <Brain className="h-4 w-4 text-sage" />
                   <span className="text-sm text-muted-foreground">
-                    Concepts
+                    Conceptos
                   </span>
                 </div>
                 <p className="text-2xl font-bold mt-1">
@@ -78,7 +79,7 @@ export default function DashboardHome() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
                   <Brain className="h-4 w-4 text-terracotta" />
-                  <span className="text-sm text-muted-foreground">Due</span>
+                  <span className="text-sm text-muted-foreground">Pendientes</span>
                 </div>
                 <p className="text-2xl font-bold mt-1">
                   {reviewCount === undefined ? (
@@ -94,7 +95,7 @@ export default function DashboardHome() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
                   <Flame className="h-4 w-4 text-terracotta" />
-                  <span className="text-sm text-muted-foreground">Streak</span>
+                  <span className="text-sm text-muted-foreground">Racha</span>
                 </div>
                 <p className="text-2xl font-bold mt-1">
                   {user?.profile?.streak ?? 0}
@@ -109,17 +110,17 @@ export default function DashboardHome() {
               <CardHeader>
                 <CardTitle className="font-display flex items-center gap-2">
                   <PenLine className="h-5 w-5 text-terracotta" />
-                  Write Today&apos;s Entry
+                  Escribir la Entrada de Hoy
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Write about what you learned today. AI will extract concepts
-                  and check your writing.
+                  Escribe sobre lo que aprendiste hoy. La IA extraerá conceptos
+                  y revisará tu escritura.
                 </p>
                 <Link href="/journal/new">
                   <Button className="bg-terracotta hover:bg-terracotta-dark">
-                    Start Writing
+                    Empezar a Escribir
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -130,16 +131,16 @@ export default function DashboardHome() {
               <CardHeader>
                 <CardTitle className="font-display flex items-center gap-2">
                   <Brain className="h-5 w-5 text-sage" />
-                  Review Concepts
+                  Repasar Conceptos
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
                   {reviewCount === undefined
-                    ? "Loading..."
+                    ? "Cargando..."
                     : reviewCount > 0
-                      ? `You have ${reviewCount} concept${reviewCount !== 1 ? "s" : ""} due for review.`
-                      : "No concepts due right now. Great job!"}
+                      ? `Tienes ${reviewCount} concepto${reviewCount !== 1 ? "s" : ""} pendiente${reviewCount !== 1 ? "s" : ""} de repaso.`
+                      : "No hay conceptos pendientes. ¡Buen trabajo!"}
                 </p>
                 <Link href="/review">
                   <Button
@@ -147,7 +148,7 @@ export default function DashboardHome() {
                     className="border-sage text-sage hover:bg-sage/10"
                     disabled={reviewCount === 0}
                   >
-                    Start Review
+                    Empezar Repaso
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -159,7 +160,7 @@ export default function DashboardHome() {
           {entries && entries.length > 0 && (
             <div>
               <h2 className="font-display text-xl font-semibold mb-3">
-                Recent Entries
+                Entradas Recientes
               </h2>
               <div className="space-y-3">
                 {entries.slice(0, 3).map((entry) => (
@@ -175,11 +176,12 @@ export default function DashboardHome() {
                               <span>
                                 {formatDistanceToNow(entry.createdAt, {
                                   addSuffix: true,
+                                  locale: es,
                                 })}
                               </span>
                               {entry.conceptCount > 0 && (
                                 <span className="text-sage">
-                                  {entry.conceptCount} concepts
+                                  {entry.conceptCount} conceptos
                                 </span>
                               )}
                               {entry.mood && <span>{entry.mood}</span>}
@@ -196,7 +198,7 @@ export default function DashboardHome() {
                   href="/journal"
                   className="text-sm text-terracotta hover:underline mt-2 inline-block"
                 >
-                  View all entries →
+                  Ver todas las entradas →
                 </Link>
               )}
             </div>
@@ -208,16 +210,16 @@ export default function DashboardHome() {
               <CardContent className="py-12 text-center">
                 <PenLine className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
                 <h3 className="font-display text-lg font-semibold mb-2">
-                  Start Your Journey
+                  Comienza Tu Viaje
                 </h3>
                 <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
-                  Write your first journal entry about what you&apos;re learning
-                  in English. Our AI will analyze it and create personalized
-                  review challenges.
+                  Escribe tu primera entrada de diario sobre lo que estás aprendiendo
+                  en inglés. Nuestra IA la analizará y creará desafíos de repaso
+                  personalizados.
                 </p>
                 <Link href="/journal/new">
                   <Button className="bg-terracotta hover:bg-terracotta-dark">
-                    Write Your First Entry
+                    Escribe Tu Primera Entrada
                   </Button>
                 </Link>
               </CardContent>

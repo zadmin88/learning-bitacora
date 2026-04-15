@@ -32,7 +32,7 @@ export default function LoginPage() {
       await signIn("password", { email, password, flow: "signIn" });
       router.push("/");
     } catch {
-      setError("Invalid email or password. Please try again.");
+      setError("Email o contraseña incorrectos. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -41,9 +41,9 @@ export default function LoginPage() {
   return (
     <Card className="border-cream-dark">
       <CardHeader>
-        <CardTitle className="font-display text-2xl">Welcome back</CardTitle>
+        <CardTitle className="font-display text-2xl">Bienvenido de vuelta</CardTitle>
         <CardDescription>
-          Sign in to continue your learning journey
+          Inicia sesión para continuar tu viaje de aprendizaje
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -54,18 +54,18 @@ export default function LoginPage() {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo electrónico</Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="tu@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Contraseña</Label>
             <Input
               id="password"
               type="password"
@@ -82,15 +82,15 @@ export default function LoginPage() {
             className="w-full bg-terracotta hover:bg-terracotta-dark"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
           </Button>
           <p className="text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            ¿No tienes una cuenta?{" "}
             <Link
               href="/register"
               className="text-terracotta hover:underline font-medium"
             >
-              Sign up
+              Regístrate
             </Link>
           </p>
         </CardFooter>
