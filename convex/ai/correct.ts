@@ -1,6 +1,6 @@
 "use node";
 
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
@@ -24,23 +24,17 @@ export const checkEntry = internalAction({
         overallLevel: string;
       };
 
-      const apiKey = process.env.ANTHROPIC_API_KEY;
+      const apiKey = process.env.GEMINI_API_KEY;
       if (apiKey) {
-        const anthropic = new Anthropic();
-        const response = await anthropic.messages.create({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 2000,
-          system: CORRECTION_SYSTEM_PROMPT,
-          messages: [
-            {
-              role: "user",
-              content: `Review this journal entry:\n\n${args.content}`,
-            },
-          ],
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+          model: "gemini-2.5-flash",
+          systemInstruction: CORRECTION_SYSTEM_PROMPT,
         });
-
-        const text =
-          response.content[0].type === "text" ? response.content[0].text : "";
+        const genResult = await model.generateContent(
+          `Review this journal entry:\n\n${args.content}`
+        );
+        const text = genResult.response.text();
 
         try {
           result = JSON.parse(text);
@@ -55,7 +49,7 @@ export const checkEntry = internalAction({
         }
       } else {
         // Mock mode for testing
-        console.log("ANTHROPIC_API_KEY not set — using mock corrections");
+        console.log("GEMINI_API_KEY not set — using mock corrections");
         result = {
           corrections: [],
           praise: "¡Buen trabajo escribiendo en inglés! Sigue practicando todos los días.",

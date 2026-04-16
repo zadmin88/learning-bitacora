@@ -1,6 +1,6 @@
 "use node";
 
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { action } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
@@ -60,28 +60,22 @@ export const generateChallenge = action({
       explanation: string;
     };
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (apiKey) {
-      const anthropic = new Anthropic();
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: CHALLENGE_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: `Generate a "${challengeType}" challenge for this concept:
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        systemInstruction: CHALLENGE_SYSTEM_PROMPT,
+      });
+      const result = await model.generateContent(
+        `Generate a "${challengeType}" challenge for this concept:
 Term: ${concept.term}
 Type: ${concept.type}
 Definition: ${concept.definition || "N/A"}
 Original context: "${concept.context}"
-Difficulty: ${concept.difficulty}/5`,
-          },
-        ],
-      });
-
-      const text =
-        response.content[0].type === "text" ? response.content[0].text : "";
+Difficulty: ${concept.difficulty}/5`
+      );
+      const text = result.response.text();
 
       try {
         challenge = JSON.parse(text);
@@ -100,7 +94,7 @@ Difficulty: ${concept.difficulty}/5`,
       }
     } else {
       // Mock mode
-      console.log("ANTHROPIC_API_KEY not set — using mock challenge");
+      console.log("GEMINI_API_KEY not set — using mock challenge");
       if (challengeType === "fill_gap") {
         challenge = {
           question: `Completa la oración: "I ___ learning about ${concept.term} today."`,

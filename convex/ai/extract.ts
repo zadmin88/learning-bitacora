@@ -1,6 +1,6 @@
 "use node";
 
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
@@ -55,23 +55,17 @@ export const processEntry = internalAction({
         difficulty?: number;
       }>;
 
-      const apiKey = process.env.ANTHROPIC_API_KEY;
+      const apiKey = process.env.GEMINI_API_KEY;
       if (apiKey) {
-        const anthropic = new Anthropic();
-        const response = await anthropic.messages.create({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 2000,
-          system: EXTRACTION_SYSTEM_PROMPT,
-          messages: [
-            {
-              role: "user",
-              content: `Analyze this journal entry:\n\n${args.content}`,
-            },
-          ],
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+          model: "gemini-2.5-flash",
+          systemInstruction: EXTRACTION_SYSTEM_PROMPT,
         });
-
-        const text =
-          response.content[0].type === "text" ? response.content[0].text : "";
+        const result = await model.generateContent(
+          `Analyze this journal entry:\n\n${args.content}`
+        );
+        const text = result.response.text();
 
         try {
           concepts = JSON.parse(text);
@@ -86,7 +80,7 @@ export const processEntry = internalAction({
         }
       } else {
         // Mock mode for testing without API key
-        console.log("ANTHROPIC_API_KEY not set — using mock extraction");
+        console.log("GEMINI_API_KEY not set — using mock extraction");
         concepts = extractMockConcepts(args.content);
       }
 

@@ -1,7 +1,6 @@
 "use node";
 
-import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { action } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
@@ -25,26 +24,25 @@ export const semanticSearch = action({
     );
     if (!userId) throw new Error("Not authenticated");
 
-    const hasOpenAI = !!process.env.OPENAI_API_KEY;
-    const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!hasOpenAI) {
+    if (!apiKey) {
       // Mock mode — just return recent entries that match keywords
-      console.log("OPENAI_API_KEY not set — using mock search");
+      console.log("GEMINI_API_KEY not set — using mock search");
       return {
-        answer: `Búsqueda de: "${args.query}"\n\nEn modo de prueba sin API keys. Configura OPENAI_API_KEY y ANTHROPIC_API_KEY para búsqueda semántica completa.`,
+        answer: `Búsqueda de: "${args.query}"\n\nEn modo de prueba sin API keys. Configura GEMINI_API_KEY para búsqueda semántica completa.`,
         entries: [],
       };
     }
 
-    const openai = new OpenAI();
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     // 1. Embed query
-    const embeddingResponse = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: args.query,
-    });
-    const queryEmbedding = embeddingResponse.data[0].embedding;
+    const embeddingModel = genAI.getGenerativeModel(
+      { model: "gemini-embedding-001" }
+    );
+    const embeddingResult = await embeddingModel.embedContent(args.query);
+    const queryEmbedding = embeddingResult.embedding.values;
 
     // 2. Vector search
     const results = await ctx.vectorSearch("entryEmbeddings", "by_embedding", {
@@ -71,37 +69,24 @@ export const semanticSearch = action({
       embeddingIds: results.map((r) => r._id),
     });
 
-    // 4. Claude generates conversational answer (or fallback)
+    // 4. Gemini generates conversational answer
     let answer: string;
 
-    if (hasAnthropic) {
-      const anthropic = new Anthropic();
-      const entryTexts: string = entries
-        .map(
-          (e, i) =>
-            `[Entrada ${i + 1}, ${new Date(e.createdAt).toLocaleDateString()}]:\n${e.content}`
-        )
-        .join("\n\n---\n\n");
+    const chatModel = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: SEARCH_SYSTEM_PROMPT,
+    });
+    const entryTexts: string = entries
+      .map(
+        (e, i) =>
+          `[Entrada ${i + 1}, ${new Date(e.createdAt).toLocaleDateString()}]:\n${e.content}`
+      )
+      .join("\n\n---\n\n");
 
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: SEARCH_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: `Query: "${args.query}"\n\nRelevant journal entries:\n\n${entryTexts}`,
-          },
-        ],
-      });
-
-      answer =
-        response.content[0].type === "text"
-          ? response.content[0].text
-          : "No se pudo generar una respuesta.";
-    } else {
-      answer = `Encontré ${entries.length} entrada(s) relacionada(s) con "${args.query}". Configura ANTHROPIC_API_KEY para obtener respuestas con IA.`;
-    }
+    const chatResult = await chatModel.generateContent(
+      `Query: "${args.query}"\n\nRelevant journal entries:\n\n${entryTexts}`
+    );
+    answer = chatResult.response.text();
 
     return {
       answer,
