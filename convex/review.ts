@@ -18,7 +18,7 @@ export const getQueue = query({
     // Load parent entry content for context
     const conceptsWithContext = await Promise.all(
       concepts.map(async (concept) => {
-        const entry = await ctx.db.get(concept.entryId);
+        const entry = concept.entryId ? await ctx.db.get(concept.entryId) : null;
         return {
           ...concept,
           entryContent: entry?.content ?? "",

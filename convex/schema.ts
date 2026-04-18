@@ -46,7 +46,7 @@ export default defineSchema({
   // ─── Concepts (extracted from entries) ───
   concepts: defineTable({
     userId: v.id("users"),
-    entryId: v.id("entries"),
+    entryId: v.optional(v.id("entries")),
     type: v.string(),
     term: v.string(),
     definition: v.optional(v.string()),

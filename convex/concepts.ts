@@ -1,11 +1,11 @@
-import { query, internalMutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUser } from "./lib/utils";
 
 export const createFromExtraction = internalMutation({
   args: {
     userId: v.id("users"),
-    entryId: v.id("entries"),
+    entryId: v.optional(v.id("entries")),
     type: v.string(),
     term: v.string(),
     definition: v.string(),
@@ -69,5 +69,35 @@ export const listByUser = query({
       .query("concepts")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
+  },
+});
+
+export const createManual = mutation({
+  args: {
+    term: v.string(),
+    definition: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx);
+    await ctx.db.insert("concepts", {
+      userId: user._id,
+      entryId: undefined,
+      type: "vocabulary",
+      term: args.term,
+      definition: args.definition ?? "",
+      context: "",
+      tags: ["manual"],
+      difficulty: 3,
+      stability: 0,
+      fsrsDifficulty: 0,
+      elapsedDays: 0,
+      scheduledDays: 0,
+      reps: 0,
+      lapses: 0,
+      state: 0,
+      nextReview: Date.now(),
+      lastReview: undefined,
+      createdAt: Date.now(),
+    });
   },
 });
