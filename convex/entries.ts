@@ -1,6 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 import { getAuthUser } from "./lib/utils";
 
 export const create = mutation({
@@ -181,7 +182,7 @@ export const listMockExtracted = internalMutation({
       .take(500);
 
     // Group by entryId and find entries with only mock concepts
-    const entryIds = new Set<string>();
+    const entryIds = new Set<Id<"entries">>();
     for (const c of mockConcepts) {
       if (
         c.entryId &&
@@ -192,9 +193,9 @@ export const listMockExtracted = internalMutation({
     }
 
     // Load entry data for each
-    const entries: Array<{ entryId: typeof mockConcepts[0]["entryId"]; userId: typeof mockConcepts[0]["userId"]; content: string }> = [];
+    const entries: Array<{ entryId: Id<"entries">; userId: Id<"users">; content: string }> = [];
     for (const entryId of entryIds) {
-      const entry = await ctx.db.get(entryId as any);
+      const entry = await ctx.db.get(entryId);
       if (entry) {
         entries.push({
           entryId: entry._id,
