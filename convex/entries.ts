@@ -172,6 +172,61 @@ export const updateConceptCount = internalMutation({
   },
 });
 
+export const listMockExtracted = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    // Find concepts that were mock-extracted (have the mock definition marker)
+    const mockConcepts = await ctx.db
+      .query("concepts")
+      .take(500);
+
+    // Group by entryId and find entries with only mock concepts
+    const entryIds = new Set<string>();
+    for (const c of mockConcepts) {
+      if (
+        c.entryId &&
+        c.definition === "Palabra encontrada en tu entrada"
+      ) {
+        entryIds.add(c.entryId);
+      }
+    }
+
+    // Load entry data for each
+    const entries: Array<{ entryId: typeof mockConcepts[0]["entryId"]; userId: typeof mockConcepts[0]["userId"]; content: string }> = [];
+    for (const entryId of entryIds) {
+      const entry = await ctx.db.get(entryId as any);
+      if (entry) {
+        entries.push({
+          entryId: entry._id,
+          userId: entry.userId,
+          content: entry.content,
+        });
+      }
+    }
+    return entries;
+  },
+});
+
+export const deleteMockConcepts = internalMutation({
+  args: { entryId: v.id("entries") },
+  handler: async (ctx, args) => {
+    const concepts = await ctx.db
+      .query("concepts")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .collect();
+
+    let deleted = 0;
+    for (const c of concepts) {
+      if (c.definition === "Palabra encontrada en tu entrada" ||
+          (c.term === "sentence structure" && c.definition?.includes("SVO"))) {
+        await ctx.db.delete(c._id);
+        deleted++;
+      }
+    }
+    return deleted;
+  },
+});
+
 export const updateCorrections = internalMutation({
   args: {
     entryId: v.id("entries"),

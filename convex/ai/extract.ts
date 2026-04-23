@@ -38,6 +38,32 @@ function extractMockConcepts(content: string) {
   return concepts.filter((c) => c.term.length > 0);
 }
 
+export const reprocessMockEntries = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const entries = await ctx.runMutation(internal.entries.listMockExtracted, {});
+    console.log(`Found ${entries.length} entries with mock-extracted concepts`);
+
+    let reprocessed = 0;
+    for (const entry of entries) {
+      // Delete old mock concepts
+      await ctx.runMutation(internal.entries.deleteMockConcepts, {
+        entryId: entry.entryId!,
+      });
+      // Re-run AI extraction
+      await ctx.runAction(internal.ai.extract.processEntry, {
+        entryId: entry.entryId!,
+        userId: entry.userId,
+        content: entry.content,
+      });
+      reprocessed++;
+    }
+
+    console.log(`Reprocessed ${reprocessed} entries`);
+    return { reprocessed };
+  },
+});
+
 export const processEntry = internalAction({
   args: {
     entryId: v.id("entries"),
@@ -57,25 +83,36 @@ export const processEntry = internalAction({
 
       const apiKey = process.env.GEMINI_API_KEY;
       if (apiKey) {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-          model: "gemini-2.5-flash",
-          systemInstruction: EXTRACTION_SYSTEM_PROMPT,
-        });
-        const result = await model.generateContent(
-          `Analyze this journal entry:\n\n${args.content}`
-        );
-        const text = result.response.text();
-
         try {
-          concepts = JSON.parse(text);
-        } catch {
-          const jsonMatch = text.match(/\[[\s\S]*\]/);
-          if (jsonMatch) {
-            concepts = JSON.parse(jsonMatch[0]);
+          const genAI = new GoogleGenerativeAI(apiKey);
+          const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            systemInstruction: EXTRACTION_SYSTEM_PROMPT,
+          });
+          const result = await model.generateContent(
+            `Analyze this journal entry:\n\n${args.content}`
+          );
+          const text = result.response.text();
+
+          try {
+            concepts = JSON.parse(text);
+          } catch {
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              concepts = JSON.parse(jsonMatch[0]);
+            } else {
+              console.error("Failed to parse extraction response:", text);
+              return;
+            }
+          }
+        } catch (aiError: any) {
+          if (aiError?.status === 429) {
+            console.warn(
+              "Gemini API quota exceeded (429) — falling back to mock extraction"
+            );
+            concepts = extractMockConcepts(args.content);
           } else {
-            console.error("Failed to parse extraction response:", text);
-            return;
+            throw aiError;
           }
         }
       } else {
