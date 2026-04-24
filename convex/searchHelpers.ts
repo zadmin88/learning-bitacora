@@ -9,6 +9,18 @@ export const getCurrentUserId = internalQuery({
   },
 });
 
+export const getAllEntries = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const entries = await ctx.db.query("entries").take(500);
+    return entries.map((e) => ({
+      _id: e._id,
+      userId: e.userId,
+      content: e.content,
+    }));
+  },
+});
+
 export const getEntriesByEmbeddings = internalQuery({
   args: { embeddingIds: v.array(v.id("entryEmbeddings")) },
   handler: async (ctx, args) => {

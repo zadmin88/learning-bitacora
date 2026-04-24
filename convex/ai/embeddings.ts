@@ -1,9 +1,9 @@
 "use node";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
+import { getProvider, EMBEDDING_DIMENSIONS } from "../lib/aiProvider";
 
 export const generateForEntry = internalAction({
   args: {
@@ -15,18 +15,13 @@ export const generateForEntry = internalAction({
     try {
       let embedding: number[];
 
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (apiKey) {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const embeddingModel = genAI.getGenerativeModel(
-          { model: "gemini-embedding-001" }
-        );
-        const result = await embeddingModel.embedContent(args.content);
-        embedding = result.embedding.values;
+      const provider = getProvider();
+      if (provider) {
+        embedding = await provider.generateEmbedding(args.content);
       } else {
         // Mock mode — generate a deterministic fake embedding from content hash
-        console.log("GEMINI_API_KEY not set — using mock embedding");
-        embedding = Array.from({ length: 3072 }, (_, i) => {
+        console.log("No AI provider configured — using mock embedding");
+        embedding = Array.from({ length: EMBEDDING_DIMENSIONS }, (_, i) => {
           const charCode = args.content.charCodeAt(i % args.content.length) || 0;
           return Math.sin(charCode * (i + 1)) * 0.1;
         });
@@ -40,5 +35,31 @@ export const generateForEntry = internalAction({
     } catch (error) {
       console.error("Error generating embedding:", error);
     }
+  },
+});
+
+export const regenerateAllEmbeddings = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const entries: Array<{
+      _id: string;
+      userId: string;
+      content: string;
+    }> = await ctx.runQuery(internal.searchHelpers.getAllEntries);
+
+    console.log(`Regenerating embeddings for ${entries.length} entries...`);
+
+    let count = 0;
+    for (const entry of entries) {
+      await ctx.runAction(internal.ai.embeddings.generateForEntry, {
+        entryId: entry._id as any,
+        userId: entry.userId as any,
+        content: entry.content,
+      });
+      count++;
+    }
+
+    console.log(`Regenerated ${count} embeddings`);
+    return { regenerated: count };
   },
 });

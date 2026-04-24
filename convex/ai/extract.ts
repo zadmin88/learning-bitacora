@@ -1,10 +1,10 @@
 "use node";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
 import { EXTRACTION_SYSTEM_PROMPT } from "../lib/prompts";
+import { getProvider } from "../lib/aiProvider";
 
 function extractMockConcepts(content: string) {
   const words = content.split(/\s+/).filter((w) => w.length > 4);
@@ -81,18 +81,13 @@ export const processEntry = internalAction({
         difficulty?: number;
       }>;
 
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (apiKey) {
+      const provider = getProvider();
+      if (provider) {
         try {
-          const genAI = new GoogleGenerativeAI(apiKey);
-          const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
-            systemInstruction: EXTRACTION_SYSTEM_PROMPT,
-          });
-          const result = await model.generateContent(
+          const text = await provider.generateText(
+            EXTRACTION_SYSTEM_PROMPT,
             `Analyze this journal entry:\n\n${args.content}`
           );
-          const text = result.response.text();
 
           try {
             concepts = JSON.parse(text);
@@ -108,7 +103,7 @@ export const processEntry = internalAction({
         } catch (aiError: any) {
           if (aiError?.status === 429) {
             console.warn(
-              "Gemini API quota exceeded (429) — falling back to mock extraction"
+              "AI API quota exceeded (429) — falling back to mock extraction"
             );
             concepts = extractMockConcepts(args.content);
           } else {
@@ -117,7 +112,7 @@ export const processEntry = internalAction({
         }
       } else {
         // Mock mode for testing without API key
-        console.log("GEMINI_API_KEY not set — using mock extraction");
+        console.log("No AI provider configured — using mock extraction");
         concepts = extractMockConcepts(args.content);
       }
 

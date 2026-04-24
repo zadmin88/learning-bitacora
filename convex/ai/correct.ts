@@ -1,10 +1,10 @@
 "use node";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
 import { CORRECTION_SYSTEM_PROMPT } from "../lib/prompts";
+import { getProvider } from "../lib/aiProvider";
 
 export const checkEntry = internalAction({
   args: {
@@ -24,17 +24,12 @@ export const checkEntry = internalAction({
         overallLevel: string;
       };
 
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (apiKey) {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-          model: "gemini-2.5-flash",
-          systemInstruction: CORRECTION_SYSTEM_PROMPT,
-        });
-        const genResult = await model.generateContent(
+      const provider = getProvider();
+      if (provider) {
+        const text = await provider.generateText(
+          CORRECTION_SYSTEM_PROMPT,
           `Review this journal entry:\n\n${args.content}`
         );
-        const text = genResult.response.text();
 
         try {
           result = JSON.parse(text);
@@ -49,7 +44,7 @@ export const checkEntry = internalAction({
         }
       } else {
         // Mock mode for testing
-        console.log("GEMINI_API_KEY not set — using mock corrections");
+        console.log("No AI provider configured — using mock corrections");
         result = {
           corrections: [],
           praise: "¡Buen trabajo escribiendo en inglés! Sigue practicando todos los días.",

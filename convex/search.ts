@@ -1,11 +1,11 @@
 "use node";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { action } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { SEARCH_SYSTEM_PROMPT } from "./lib/prompts";
 import { Id } from "./_generated/dataModel";
+import { getProvider } from "./lib/aiProvider";
 
 export const semanticSearch = action({
   args: { query: v.string() },
@@ -24,25 +24,19 @@ export const semanticSearch = action({
     );
     if (!userId) throw new Error("Not authenticated");
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const provider = getProvider();
 
-    if (!apiKey) {
+    if (!provider) {
       // Mock mode — just return recent entries that match keywords
-      console.log("GEMINI_API_KEY not set — using mock search");
+      console.log("No AI provider configured — using mock search");
       return {
-        answer: `Búsqueda de: "${args.query}"\n\nEn modo de prueba sin API keys. Configura GEMINI_API_KEY para búsqueda semántica completa.`,
+        answer: `Búsqueda de: "${args.query}"\n\nEn modo de prueba sin API keys. Configura CLOUDFLARE_AI_API_TOKEN o GEMINI_API_KEY para búsqueda semántica completa.`,
         entries: [],
       };
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-
     // 1. Embed query
-    const embeddingModel = genAI.getGenerativeModel(
-      { model: "gemini-embedding-001" }
-    );
-    const embeddingResult = await embeddingModel.embedContent(args.query);
-    const queryEmbedding = embeddingResult.embedding.values;
+    const queryEmbedding = await provider.generateEmbedding(args.query);
 
     // 2. Vector search
     const results = await ctx.vectorSearch("entryEmbeddings", "by_embedding", {
@@ -69,13 +63,7 @@ export const semanticSearch = action({
       embeddingIds: results.map((r) => r._id),
     });
 
-    // 4. Gemini generates conversational answer
-    let answer: string;
-
-    const chatModel = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      systemInstruction: SEARCH_SYSTEM_PROMPT,
-    });
+    // 4. AI generates conversational answer
     const entryTexts: string = entries
       .map(
         (e, i) =>
@@ -83,10 +71,10 @@ export const semanticSearch = action({
       )
       .join("\n\n---\n\n");
 
-    const chatResult = await chatModel.generateContent(
+    const answer = await provider.generateText(
+      SEARCH_SYSTEM_PROMPT,
       `Query: "${args.query}"\n\nRelevant journal entries:\n\n${entryTexts}`
     );
-    answer = chatResult.response.text();
 
     return {
       answer,

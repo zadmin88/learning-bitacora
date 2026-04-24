@@ -1,10 +1,10 @@
 "use node";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { action } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
 import { CHALLENGE_SYSTEM_PROMPT } from "../lib/prompts";
+import { getProvider } from "../lib/aiProvider";
 
 export const generateChallenge = action({
   args: { conceptId: v.id("concepts") },
@@ -60,14 +60,10 @@ export const generateChallenge = action({
       explanation: string;
     };
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (apiKey) {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        systemInstruction: CHALLENGE_SYSTEM_PROMPT,
-      });
-      const result = await model.generateContent(
+    const provider = getProvider();
+    if (provider) {
+      const text = await provider.generateText(
+        CHALLENGE_SYSTEM_PROMPT,
         `Generate a "${challengeType}" challenge for this concept:
 Term: ${concept.term}
 Type: ${concept.type}
@@ -75,7 +71,6 @@ Definition: ${concept.definition || "N/A"}
 Original context: "${concept.context}"
 Difficulty: ${concept.difficulty}/5`
       );
-      const text = result.response.text();
 
       try {
         challenge = JSON.parse(text);
@@ -94,7 +89,7 @@ Difficulty: ${concept.difficulty}/5`
       }
     } else {
       // Mock mode
-      console.log("GEMINI_API_KEY not set — using mock challenge");
+      console.log("No AI provider configured — using mock challenge");
       if (challengeType === "fill_gap") {
         challenge = {
           question: `Completa la oración: "I ___ learning about ${concept.term} today."`,
