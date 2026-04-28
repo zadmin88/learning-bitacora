@@ -64,6 +64,57 @@ export const reprocessMockEntries = internalAction({
   },
 });
 
+// Reprocess ALL entries: deletes old concepts, re-extracts, re-corrects, re-embeds
+export const reprocessAllEntries = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const entries: Array<{
+      _id: string;
+      userId: string;
+      content: string;
+    }> = await ctx.runQuery(internal.searchHelpers.getAllEntries);
+
+    console.log(`Reprocessing ${entries.length} entries (extract + correct + embed)...`);
+
+    let processed = 0;
+    for (const entry of entries) {
+      const entryId = entry._id as any;
+      const userId = entry.userId as any;
+
+      // 1. Delete old concepts for this entry
+      await ctx.runMutation(internal.entries.deleteAllConceptsByEntry, {
+        entryId,
+      });
+
+      // 2. Re-extract concepts
+      await ctx.runAction(internal.ai.extract.processEntry, {
+        entryId,
+        userId,
+        content: entry.content,
+      });
+
+      // 3. Re-run corrections
+      await ctx.runAction(internal.ai.correct.checkEntry, {
+        entryId,
+        content: entry.content,
+      });
+
+      // 4. Re-generate embedding
+      await ctx.runAction(internal.ai.embeddings.generateForEntry, {
+        entryId,
+        userId,
+        content: entry.content,
+      });
+
+      processed++;
+      console.log(`Processed ${processed}/${entries.length}`);
+    }
+
+    console.log(`Done. Reprocessed ${processed} entries.`);
+    return { processed };
+  },
+});
+
 export const processEntry = internalAction({
   args: {
     entryId: v.id("entries"),

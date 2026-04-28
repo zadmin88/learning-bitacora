@@ -228,6 +228,21 @@ export const deleteMockConcepts = internalMutation({
   },
 });
 
+export const deleteAllConceptsByEntry = internalMutation({
+  args: { entryId: v.id("entries") },
+  handler: async (ctx, args) => {
+    const concepts = await ctx.db
+      .query("concepts")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .collect();
+
+    for (const c of concepts) {
+      await ctx.db.delete(c._id);
+    }
+    return concepts.length;
+  },
+});
+
 export const updateCorrections = internalMutation({
   args: {
     entryId: v.id("entries"),
