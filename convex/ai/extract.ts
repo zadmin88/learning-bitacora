@@ -137,7 +137,7 @@ export const processEntry = internalAction({
         try {
           const text = await provider.generateText(
             EXTRACTION_SYSTEM_PROMPT,
-            `Analyze this journal entry:\n\n${args.content}`
+            `Analyze this language learner's entry and extract only the main concept(s) the learner is studying:\n\n${args.content}`
           );
 
           try {
