@@ -82,14 +82,31 @@ async function doGenerateChallenge(
 
   const provider = getProvider();
   if (provider) {
-    const text = await provider.generateText(
-      CHALLENGE_SYSTEM_PROMPT,
-      `Generate a "${challengeType}" challenge for this concept:
+    // Build user prompt — vocabulary free_recall needs special instructions
+    let userPrompt: string;
+    if (challengeType === "free_recall" && concept.type !== "grammar") {
+      userPrompt = `Generate a "free_recall" challenge for this VOCABULARY concept.
+The learner must recall the EXACT term from its definition/description.
+
+Term (this is the correct answer — do NOT include it in the question): ${concept.term}
+Type: ${concept.type}
+Definition: ${concept.definition || "N/A"}
+Original context (for reference only — create a NEW description): "${concept.context}"
+Difficulty: ${concept.difficulty}/5
+
+Remember: Describe the meaning or a scenario, then ask "What is the English word/phrase for this?" The answer MUST be "${concept.term}".`;
+    } else {
+      userPrompt = `Generate a "${challengeType}" challenge for this concept:
 Term: ${concept.term}
 Type: ${concept.type}
 Definition: ${concept.definition || "N/A"}
 Original context: "${concept.context}"
-Difficulty: ${concept.difficulty}/5`
+Difficulty: ${concept.difficulty}/5`;
+    }
+
+    const text = await provider.generateText(
+      CHALLENGE_SYSTEM_PROMPT,
+      userPrompt
     );
 
     try {

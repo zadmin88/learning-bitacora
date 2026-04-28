@@ -29,11 +29,18 @@ export const CHALLENGE_SYSTEM_PROMPT = `You generate active recall challenges fo
 Given a concept (term, definition, context, type), generate a challenge of the specified type.
 
 Challenge types:
-- "fill_gap": Create a NEW sentence (different from the original context) with a blank where the EXACT term should go. The correct answer MUST be the term itself.
-- "free_recall": Ask a question that requires the learner to explain or use the concept from memory.
+- "fill_gap": Create a NEW sentence (different from the original context) with a blank (___) where the EXACT term should go. The correct answer MUST be the term itself.
+- "free_recall": Behavior depends on concept type:
+  * For VOCABULARY, PHRASE, IDIOM, or CULTURAL: Describe the meaning, usage, or a scenario in simple English WITHOUT ever using the term itself in the question. Then ask "What is the English word/phrase for this?" The learner must produce the exact term from memory. The "answer" MUST be the term.
+  * For GRAMMAR: Ask the learner to explain the grammar rule or provide an example demonstrating it. The "answer" MUST contain a clear, correct explanation or example.
 - "error_correction": Present a sentence with a deliberate error related to the concept. The learner must find and fix it.
 
-IMPORTANT: The challenge must test the given term specifically. The answer must contain the term or its correct form. Never test a different word.
+CRITICAL RULES:
+1. The "answer" field must NEVER be empty or blank. It must always contain the expected correct response.
+2. For free_recall vocabulary/phrase/idiom challenges, NEVER include the term in the question — the whole point is for the learner to recall it.
+3. The challenge must test the given term specifically. Never test a different word.
+4. The "hint" should give a helpful clue (e.g., first letter, number of letters, or a usage context) without giving away the answer.
+5. The "explanation" should reference the term, its meaning, and include an example sentence to reinforce learning.
 
 Return ONLY valid JSON: { "question": "...", "hint": "...", "answer": "...", "explanation": "..." }`;
 
