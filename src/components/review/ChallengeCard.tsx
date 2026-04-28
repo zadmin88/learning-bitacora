@@ -98,14 +98,9 @@ export function ChallengeCard({
     <>
       <Card className="w-full">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <Badge variant="outline" className="text-xs">
-              {typeLabel}
-            </Badge>
-            <Badge variant="secondary" className="text-xs capitalize">
-              {conceptType}: {conceptTerm}
-            </Badge>
-          </div>
+          <Badge variant="outline" className="text-xs">
+            {typeLabel}
+          </Badge>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Question */}
