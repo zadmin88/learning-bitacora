@@ -23,6 +23,29 @@ export const getCachedChallenge = internalQuery({
   },
 });
 
+export const getAnyCachedChallenge = internalQuery({
+  args: { conceptId: v.id("concepts") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("challengeCache")
+      .withIndex("by_concept", (q) => q.eq("conceptId", args.conceptId))
+      .first();
+  },
+});
+
+export const invalidateCachedChallenge = internalMutation({
+  args: { conceptId: v.id("concepts") },
+  handler: async (ctx, args) => {
+    const cached = await ctx.db
+      .query("challengeCache")
+      .withIndex("by_concept", (q) => q.eq("conceptId", args.conceptId))
+      .collect();
+    for (const entry of cached) {
+      await ctx.db.delete(entry._id);
+    }
+  },
+});
+
 export const cacheChallenge = internalMutation({
   args: {
     conceptId: v.id("concepts"),

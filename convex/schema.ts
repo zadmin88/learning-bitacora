@@ -93,5 +93,7 @@ export default defineSchema({
     answer: v.string(),
     explanation: v.string(),
     generatedAt: v.number(),
-  }).index("by_concept_type", ["conceptId", "challengeType"]),
+  })
+    .index("by_concept_type", ["conceptId", "challengeType"])
+    .index("by_concept", ["conceptId"]),
 });

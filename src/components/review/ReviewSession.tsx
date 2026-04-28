@@ -8,7 +8,7 @@ import { RatingButtons } from "./RatingButtons";
 import { ReviewSummary } from "./ReviewSummary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { Brain } from "lucide-react";
+import { Brain, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -21,15 +21,24 @@ interface ChallengeData {
   conceptId?: any;
 }
 
+function shuffleArray<T>(array: T[]): T[] {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 export function ReviewSession() {
   const queue = useQuery(api.review.getQueue);
   const submitReview = useMutation(api.review.submitReview);
   const generateChallenge = useAction(api.ai.challenge.generateChallenge);
+  const regenerateChallenge = useAction(api.ai.challenge.regenerateChallenge);
 
   // Snapshot the queue so reactive updates don't shift indices mid-session
   const sessionQueue = useRef<NonNullable<typeof queue> | null>(null);
   if (queue && queue.length > 0 && !sessionQueue.current) {
-    sessionQueue.current = queue;
+    sessionQueue.current = shuffleArray([...queue]);
   }
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -111,6 +120,21 @@ export function ReviewSession() {
     }
   };
 
+  const handleNewChallenge = useCallback(async () => {
+    if (!currentConcept) return;
+    setLoadingChallenge(true);
+    setChallenge(null);
+    setWasCorrect(null);
+    try {
+      const result = await regenerateChallenge({ conceptId: currentConcept._id });
+      setChallenge(result as ChallengeData);
+    } catch (error) {
+      console.error("Error regenerating challenge:", error);
+    } finally {
+      setLoadingChallenge(false);
+    }
+  }, [regenerateChallenge, currentConcept]);
+
   // Loading queue
   if (queue === undefined) {
     return (
@@ -174,12 +198,27 @@ export function ReviewSession() {
           <Skeleton className="h-48 w-full" />
         </div>
       ) : challenge ? (
-        <ChallengeCard
-          challenge={challenge}
-          conceptTerm={currentConcept?.term ?? ""}
-          conceptType={currentConcept?.type ?? ""}
-          onAnswer={handleAnswer}
-        />
+        <>
+          <ChallengeCard
+            challenge={challenge}
+            conceptTerm={currentConcept?.term ?? ""}
+            conceptType={currentConcept?.type ?? ""}
+            onAnswer={handleAnswer}
+          />
+          {wasCorrect === null && (
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleNewChallenge}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Nuevo Reto
+              </Button>
+            </div>
+          )}
+        </>
       ) : null}
 
       {/* Rating buttons (show after answer) */}
@@ -188,7 +227,20 @@ export function ReviewSession() {
           <p className="text-sm text-muted-foreground mb-2 text-center">
             ¿Qué tan bien lo recordaste?
           </p>
-          <RatingButtons onRate={handleRate} />
+          <RatingButtons
+            onRate={handleRate}
+            cardState={currentConcept ? {
+              due: currentConcept.nextReview,
+              stability: currentConcept.stability,
+              difficulty: currentConcept.fsrsDifficulty,
+              elapsed_days: currentConcept.elapsedDays,
+              scheduled_days: currentConcept.scheduledDays,
+              reps: currentConcept.reps,
+              lapses: currentConcept.lapses,
+              state: currentConcept.state,
+              lastReview: currentConcept.lastReview,
+            } : undefined}
+          />
         </div>
       )}
     </div>
