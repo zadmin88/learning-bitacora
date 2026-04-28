@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { ChallengeCard } from "./ChallengeCard";
@@ -26,6 +26,12 @@ export function ReviewSession() {
   const submitReview = useMutation(api.review.submitReview);
   const generateChallenge = useAction(api.ai.challenge.generateChallenge);
 
+  // Snapshot the queue so reactive updates don't shift indices mid-session
+  const sessionQueue = useRef<NonNullable<typeof queue> | null>(null);
+  if (queue && queue.length > 0 && !sessionQueue.current) {
+    sessionQueue.current = queue;
+  }
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [challenge, setChallenge] = useState<ChallengeData | null>(null);
   const [loadingChallenge, setLoadingChallenge] = useState(false);
@@ -37,7 +43,8 @@ export function ReviewSession() {
   });
   const [sessionComplete, setSessionComplete] = useState(false);
 
-  const currentConcept = queue?.[currentIndex];
+  const items = sessionQueue.current;
+  const currentConcept = items?.[currentIndex];
 
   const loadChallenge = useCallback(
     async (conceptId: any) => {
@@ -49,7 +56,7 @@ export function ReviewSession() {
         setChallenge(result as ChallengeData);
       } catch (error) {
         console.error("Error generating challenge:", error);
-        const concept = queue?.find((c) => c._id === conceptId);
+        const concept = items?.find((c) => c._id === conceptId);
         if (concept) {
           setChallenge({
             question: `¿Qué significa "${concept.term}"?`,
@@ -62,7 +69,7 @@ export function ReviewSession() {
         setLoadingChallenge(false);
       }
     },
-    [generateChallenge, queue]
+    [generateChallenge, items]
   );
 
   // Load first challenge
@@ -92,14 +99,14 @@ export function ReviewSession() {
     });
 
     const nextIndex = currentIndex + 1;
-    if (queue && nextIndex >= queue.length) {
+    if (items && nextIndex >= items.length) {
       setSessionComplete(true);
     } else {
       setCurrentIndex(nextIndex);
       setWasCorrect(null);
       setChallenge(null);
-      if (queue?.[nextIndex]) {
-        loadChallenge(queue[nextIndex]._id);
+      if (items?.[nextIndex]) {
+        loadChallenge(items[nextIndex]._id);
       }
     }
   };
@@ -114,8 +121,8 @@ export function ReviewSession() {
     );
   }
 
-  // Empty queue
-  if (queue.length === 0) {
+  // Empty queue (use live queue for this check, not snapshot)
+  if (queue.length === 0 && !sessionQueue.current) {
     return (
       <div className="text-center py-12 max-w-md mx-auto">
         <Brain className="h-12 w-12 text-sage mx-auto mb-4" />
@@ -152,11 +159,11 @@ export function ReviewSession() {
       {/* Progress */}
       <div className="flex items-center gap-3">
         <Progress
-          value={((currentIndex + 1) / queue.length) * 100}
+          value={items ? ((currentIndex + 1) / items.length) * 100 : 0}
           className="flex-1"
         />
         <span className="text-sm text-muted-foreground whitespace-nowrap">
-          {currentIndex + 1} / {queue.length}
+          {currentIndex + 1} / {items?.length ?? 0}
         </span>
       </div>
 

@@ -32,11 +32,15 @@ export const checkEntry = internalAction({
         );
 
         try {
-          result = JSON.parse(text);
+          // Strip trailing commas before ] or } (common AI output issue)
+          const sanitized = text.replace(/,\s*([}\]])/g, "$1");
+          result = JSON.parse(sanitized);
         } catch {
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
-            result = JSON.parse(jsonMatch[0]);
+            // Strip trailing commas before ] or } (common AI output issue)
+            const cleaned = jsonMatch[0].replace(/,\s*([}\]])/g, "$1");
+            result = JSON.parse(cleaned);
           } else {
             console.error("Failed to parse correction response:", text);
             return;

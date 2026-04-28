@@ -141,11 +141,13 @@ export const processEntry = internalAction({
           );
 
           try {
-            concepts = JSON.parse(text);
+            const sanitized = text.replace(/,\s*([}\]])/g, "$1");
+            concepts = JSON.parse(sanitized);
           } catch {
             const jsonMatch = text.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
-              concepts = JSON.parse(jsonMatch[0]);
+              const cleaned = jsonMatch[0].replace(/,\s*([}\]])/g, "$1");
+              concepts = JSON.parse(cleaned);
             } else {
               console.error("Failed to parse extraction response:", text);
               return;
