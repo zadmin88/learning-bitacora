@@ -60,7 +60,7 @@ export const submitReview = mutation({
       throw new Error("Concept not found");
     }
 
-    const f = fsrs();
+    const f = fsrs({ request_retention: 0.95 });
 
     // Build card from concept state
     const card = {
