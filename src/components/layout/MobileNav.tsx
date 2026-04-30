@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Brain, Search, BarChart3, PenLine } from "lucide-react";
+import { BookOpen, Brain, Search, BarChart3, PenLine, Lightbulb } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/journal", label: "Diario", icon: PenLine },
   { href: "/review", label: "Repasar", icon: Brain },
   { href: "/explore", label: "Explorar", icon: Search },
+  { href: "/discover", label: "Descubrir", icon: Lightbulb },
   { href: "/progress", label: "Progreso", icon: BarChart3 },
 ];
 

@@ -11,6 +11,7 @@ import {
   PenLine,
   LogOut,
   Flame,
+  Lightbulb,
 } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/journal", label: "Diario", icon: PenLine },
   { href: "/review", label: "Repasar", icon: Brain },
   { href: "/explore", label: "Explorar", icon: Search },
+  { href: "/discover", label: "Descubrir", icon: Lightbulb },
   { href: "/progress", label: "Progreso", icon: BarChart3 },
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];

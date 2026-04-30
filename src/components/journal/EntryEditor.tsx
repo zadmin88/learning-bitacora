@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -31,10 +31,20 @@ const WRITING_PROMPTS = [
 export function EntryEditor() {
   const createEntry = useMutation(api.entries.create);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [content, setContent] = useState("");
   const [mood, setMood] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [showPrompts, setShowPrompts] = useState(true);
+
+  // Pre-fill content from discover page suggestions
+  useEffect(() => {
+    const prefill = searchParams.get("content");
+    if (prefill) {
+      setContent(prefill);
+      setShowPrompts(false);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
