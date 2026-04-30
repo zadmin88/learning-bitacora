@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { ChallengeCard } from "./ChallengeCard";
 import { RatingButtons } from "./RatingButtons";
 import { ReviewSummary } from "./ReviewSummary";
@@ -19,6 +20,9 @@ interface ChallengeData {
   explanation: string;
   challengeType: string;
   conceptId?: any;
+  questionEs?: string;
+  hintEs?: string;
+  explanationEs?: string;
 }
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -30,10 +34,14 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export function ReviewSession() {
+  const { user } = useCurrentUser();
   const queue = useQuery(api.review.getQueue);
   const submitReview = useMutation(api.review.submitReview);
   const generateChallenge = useAction(api.ai.challenge.generateChallenge);
   const regenerateChallenge = useAction(api.ai.challenge.regenerateChallenge);
+
+  const challengeLevel = user?.profile?.challengeLevel ?? "intermediate";
+  const showSpanish = user?.profile?.showSpanish ?? false;
 
   // Snapshot the queue so reactive updates don't shift indices mid-session
   const sessionQueue = useRef<NonNullable<typeof queue> | null>(null);
@@ -61,24 +69,26 @@ export function ReviewSession() {
       setChallenge(null);
       setWasCorrect(null);
       try {
-        const result = await generateChallenge({ conceptId });
+        const result = await generateChallenge({ conceptId, challengeLevel });
         setChallenge(result as ChallengeData);
       } catch (error) {
         console.error("Error generating challenge:", error);
         const concept = items?.find((c) => c._id === conceptId);
         if (concept) {
           setChallenge({
-            question: `¿Qué significa "${concept.term}"?`,
+            question: `What does "${concept.term}" mean?`,
             answer: concept.definition || concept.term,
-            explanation: `Este concepto fue encontrado en tu entrada de diario: "${concept.context}"`,
+            explanation: `This concept was found in your journal entry: "${concept.context}"`,
             challengeType: "free_recall",
+            questionEs: `¿Qué significa "${concept.term}"?`,
+            explanationEs: `Este concepto fue encontrado en tu entrada de diario: "${concept.context}"`,
           });
         }
       } finally {
         setLoadingChallenge(false);
       }
     },
-    [generateChallenge, items]
+    [generateChallenge, items, challengeLevel]
   );
 
   // Load first challenge
@@ -126,14 +136,14 @@ export function ReviewSession() {
     setChallenge(null);
     setWasCorrect(null);
     try {
-      const result = await regenerateChallenge({ conceptId: currentConcept._id });
+      const result = await regenerateChallenge({ conceptId: currentConcept._id, challengeLevel });
       setChallenge(result as ChallengeData);
     } catch (error) {
       console.error("Error regenerating challenge:", error);
     } finally {
       setLoadingChallenge(false);
     }
-  }, [regenerateChallenge, currentConcept]);
+  }, [regenerateChallenge, currentConcept, challengeLevel]);
 
   // Loading queue
   if (queue === undefined) {
@@ -204,6 +214,7 @@ export function ReviewSession() {
             conceptTerm={currentConcept?.term ?? ""}
             conceptType={currentConcept?.type ?? ""}
             onAnswer={handleAnswer}
+            defaultShowSpanish={showSpanish}
           />
           {wasCorrect === null && (
             <div className="flex justify-end">

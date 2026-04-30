@@ -15,13 +15,25 @@ type ChallengeResult = {
   explanation: string;
   challengeType: string;
   conceptId: string;
+  questionEs?: string;
+  hintEs?: string;
+  explanationEs?: string;
 };
 
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
+const LEVEL_INSTRUCTIONS: Record<string, string> = {
+  beginner:
+    "Use short, simple sentences with common vocabulary. Keep the challenge straightforward and suitable for beginners (difficulty 1-2).",
+  intermediate: "",
+  advanced:
+    "Use complex sentences, nuanced vocabulary, and sophisticated grammar. Make it challenging for advanced learners (difficulty 4-5).",
+};
+
 async function doGenerateChallenge(
   ctx: ActionCtx,
-  conceptId: Id<"concepts">
+  conceptId: Id<"concepts">,
+  challengeLevel: string
 ): Promise<ChallengeResult> {
   // Load concept
   const concept: any = await ctx.runQuery(
@@ -38,19 +50,19 @@ async function doGenerateChallenge(
     challengeType = "error_correction";
     cached = await ctx.runQuery(
       internal.challengeHelpers.getCachedChallenge,
-      { conceptId, challengeType }
+      { conceptId, challengeType, challengeLevel }
     );
   } else if (concept.type === "grammar") {
     challengeType = "free_recall";
     cached = await ctx.runQuery(
       internal.challengeHelpers.getCachedChallenge,
-      { conceptId, challengeType }
+      { conceptId, challengeType, challengeLevel }
     );
   } else {
     // Vocabulary: check for ANY cached challenge first (regardless of type)
     cached = await ctx.runQuery(
       internal.challengeHelpers.getAnyCachedChallenge,
-      { conceptId }
+      { conceptId, challengeLevel }
     );
     if (cached && Date.now() - cached.generatedAt < CACHE_TTL) {
       challengeType = cached.challengeType;
@@ -69,6 +81,9 @@ async function doGenerateChallenge(
       explanation: cached.explanation,
       challengeType: cached.challengeType,
       conceptId,
+      questionEs: cached.questionEs,
+      hintEs: cached.hintEs,
+      explanationEs: cached.explanationEs,
     };
   }
 
@@ -78,10 +93,15 @@ async function doGenerateChallenge(
     hint?: string;
     answer: string;
     explanation: string;
+    questionEs?: string;
+    hintEs?: string;
+    explanationEs?: string;
   };
 
   const provider = getProvider();
   if (provider) {
+    const levelInstruction = LEVEL_INSTRUCTIONS[challengeLevel] || "";
+
     // Build user prompt — vocabulary free_recall needs special instructions
     let userPrompt: string;
     if (challengeType === "free_recall" && concept.type !== "grammar") {
@@ -104,6 +124,10 @@ Original context: "${concept.context}"
 Difficulty: ${concept.difficulty}/5`;
     }
 
+    if (levelInstruction) {
+      userPrompt += `\n\n${levelInstruction}`;
+    }
+
     const text = await provider.generateText(
       CHALLENGE_SYSTEM_PROMPT,
       userPrompt
@@ -117,10 +141,13 @@ Difficulty: ${concept.difficulty}/5`;
         challenge = JSON.parse(jsonMatch[0]);
       } else {
         challenge = {
-          question: `¿Qué significa "${concept.term}"?`,
+          question: `What does "${concept.term}" mean?`,
           hint: concept.context,
           answer: concept.definition || concept.term,
-          explanation: `"${concept.term}" fue encontrado en tu entrada de diario.`,
+          explanation: `"${concept.term}" was found in your journal entry.`,
+          questionEs: `¿Qué significa "${concept.term}"?`,
+          hintEs: concept.context,
+          explanationEs: `"${concept.term}" fue encontrado en tu entrada de diario.`,
         };
       }
     }
@@ -129,24 +156,33 @@ Difficulty: ${concept.difficulty}/5`;
     console.log("No AI provider configured — using mock challenge");
     if (challengeType === "fill_gap") {
       challenge = {
-        question: `Completa la oración: "I ___ learning about ${concept.term} today."`,
-        hint: `Piensa en el contexto: "${concept.context?.substring(0, 60)}"`,
+        question: `Complete the sentence: "I ___ learning about ${concept.term} today."`,
+        hint: `Think about the context: "${concept.context?.substring(0, 60)}"`,
         answer: "was",
-        explanation: `Usamos "was" con "I" en pasado continuo para describir acciones en progreso.`,
+        explanation: `We use "was" with "I" in past continuous to describe ongoing actions.`,
+        questionEs: `Completa la oración: "I ___ learning about ${concept.term} today."`,
+        hintEs: `Piensa en el contexto: "${concept.context?.substring(0, 60)}"`,
+        explanationEs: `Usamos "was" con "I" en pasado continuo para describir acciones en progreso.`,
       };
     } else if (challengeType === "error_correction") {
       challenge = {
-        question: `Encuentra el error: "She don't know about ${concept.term}."`,
-        hint: "Fíjate en la conjugación del verbo.",
+        question: `Find the error: "She don't know about ${concept.term}."`,
+        hint: "Look at the verb conjugation.",
         answer: `She doesn't know about ${concept.term}.`,
-        explanation: `Con "she/he/it" usamos "doesn't" en lugar de "don't".`,
+        explanation: `With "she/he/it" we use "doesn't" instead of "don't".`,
+        questionEs: `Encuentra el error: "She don't know about ${concept.term}."`,
+        hintEs: "Fíjate en la conjugación del verbo.",
+        explanationEs: `Con "she/he/it" usamos "doesn't" en lugar de "don't".`,
       };
     } else {
       challenge = {
-        question: `¿Qué significa "${concept.term}" y cómo lo usarías en una oración?`,
-        hint: concept.context?.substring(0, 80) || "Piensa en el contexto donde lo aprendiste.",
+        question: `What does "${concept.term}" mean and how would you use it in a sentence?`,
+        hint: concept.context?.substring(0, 80) || "Think about the context where you learned it.",
         answer: concept.definition || concept.term,
-        explanation: `"${concept.term}" es un concepto que encontraste en tu diario de aprendizaje.`,
+        explanation: `"${concept.term}" is a concept you found in your learning journal.`,
+        questionEs: `¿Qué significa "${concept.term}" y cómo lo usarías en una oración?`,
+        hintEs: concept.context?.substring(0, 80) || "Piensa en el contexto donde lo aprendiste.",
+        explanationEs: `"${concept.term}" es un concepto que encontraste en tu diario de aprendizaje.`,
       };
     }
   }
@@ -155,10 +191,14 @@ Difficulty: ${concept.difficulty}/5`;
   await ctx.runMutation(internal.challengeHelpers.cacheChallenge, {
     conceptId,
     challengeType,
+    challengeLevel,
     question: challenge.question,
     hint: challenge.hint,
     answer: challenge.answer,
     explanation: challenge.explanation,
+    questionEs: challenge.questionEs,
+    hintEs: challenge.hintEs,
+    explanationEs: challenge.explanationEs,
   });
 
   return {
@@ -169,20 +209,28 @@ Difficulty: ${concept.difficulty}/5`;
 }
 
 export const generateChallenge = action({
-  args: { conceptId: v.id("concepts") },
+  args: {
+    conceptId: v.id("concepts"),
+    challengeLevel: v.optional(v.string()),
+  },
   handler: async (ctx, args): Promise<ChallengeResult> => {
-    return doGenerateChallenge(ctx, args.conceptId);
+    const level = args.challengeLevel ?? "intermediate";
+    return doGenerateChallenge(ctx, args.conceptId, level);
   },
 });
 
 export const regenerateChallenge = action({
-  args: { conceptId: v.id("concepts") },
+  args: {
+    conceptId: v.id("concepts"),
+    challengeLevel: v.optional(v.string()),
+  },
   handler: async (ctx, args): Promise<ChallengeResult> => {
+    const level = args.challengeLevel ?? "intermediate";
     // Invalidate all cached challenges for this concept
     await ctx.runMutation(internal.challengeHelpers.invalidateCachedChallenge, {
       conceptId: args.conceptId,
     });
     // Generate a fresh challenge (will miss cache)
-    return doGenerateChallenge(ctx, args.conceptId);
+    return doGenerateChallenge(ctx, args.conceptId, level);
   },
 });

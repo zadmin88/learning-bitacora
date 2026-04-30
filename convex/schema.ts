@@ -10,6 +10,8 @@ export default defineSchema({
     userId: v.id("users"),
     streak: v.number(),
     lastActiveDate: v.optional(v.string()),
+    challengeLevel: v.optional(v.string()),
+    showSpanish: v.optional(v.boolean()),
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
 
@@ -88,12 +90,16 @@ export default defineSchema({
   challengeCache: defineTable({
     conceptId: v.id("concepts"),
     challengeType: v.string(),
+    challengeLevel: v.optional(v.string()),
     question: v.string(),
     hint: v.optional(v.string()),
     answer: v.string(),
     explanation: v.string(),
+    questionEs: v.optional(v.string()),
+    hintEs: v.optional(v.string()),
+    explanationEs: v.optional(v.string()),
     generatedAt: v.number(),
   })
-    .index("by_concept_type", ["conceptId", "challengeType"])
+    .index("by_conceptId_and_challengeType_and_challengeLevel", ["conceptId", "challengeType", "challengeLevel"])
     .index("by_concept", ["conceptId"]),
 });

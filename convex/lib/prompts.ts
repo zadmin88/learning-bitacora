@@ -42,7 +42,10 @@ CRITICAL RULES:
 4. The "hint" should give a helpful clue (e.g., first letter, number of letters, or a usage context) without giving away the answer.
 5. The "explanation" should reference the term, its meaning, and include an example sentence to reinforce learning.
 
-Return ONLY valid JSON: { "question": "...", "hint": "...", "answer": "...", "explanation": "..." }`;
+Additionally, provide Spanish translations of the question, hint, and explanation so the learner can optionally view the challenge in Spanish.
+
+Return ONLY valid JSON: { "question": "...", "hint": "...", "answer": "...", "explanation": "...", "questionEs": "...", "hintEs": "...", "explanationEs": "..." }
+The "answer" field must always remain in English.`;
 
 export const SUGGESTION_SYSTEM_PROMPT = `You are an expert ESL teacher helping Spanish-speaking learners discover new English vocabulary.
 Given a topic and difficulty level, suggest 5 useful English words or phrases the learner should know.

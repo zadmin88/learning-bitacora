@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Eye, CheckCircle, XCircle, Lightbulb, Plus, BookOpen } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Lightbulb, Plus, BookOpen, Globe } from "lucide-react";
 
 interface Challenge {
   question: string;
@@ -23,6 +23,9 @@ interface Challenge {
   answer: string;
   explanation: string;
   challengeType: string;
+  questionEs?: string;
+  hintEs?: string;
+  explanationEs?: string;
 }
 
 interface ChallengeCardProps {
@@ -30,6 +33,7 @@ interface ChallengeCardProps {
   conceptTerm: string;
   conceptType: string;
   onAnswer: (wasCorrect: boolean) => void;
+  defaultShowSpanish?: boolean;
 }
 
 export function ChallengeCard({
@@ -37,10 +41,12 @@ export function ChallengeCard({
   conceptTerm,
   conceptType,
   onAnswer,
+  defaultShowSpanish = false,
 }: ChallengeCardProps) {
   const [userAnswer, setUserAnswer] = useState("");
   const [showHint, setShowHint] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const [showSpanish, setShowSpanish] = useState(defaultShowSpanish);
 
   // Add concept state
   const [showAddConcept, setShowAddConcept] = useState(false);
@@ -94,17 +100,43 @@ export function ChallengeCard({
         ? "Recuerdo Libre"
         : "Corrección de Errores";
 
+  const hasSpanish = !!(challenge.questionEs || challenge.hintEs || challenge.explanationEs);
+
   return (
     <>
       <Card className="w-full">
         <CardHeader className="pb-3">
-          <Badge variant="outline" className="text-xs">
-            {typeLabel}
-          </Badge>
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className="text-xs">
+              {typeLabel}
+            </Badge>
+            {hasSpanish && (
+              <button
+                onClick={() => setShowSpanish(!showSpanish)}
+                className={`text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
+                  showSpanish
+                    ? "bg-terracotta/10 text-terracotta"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Globe className="h-3 w-3" />
+                {showSpanish ? "Ocultar español" : "Ver en español"}
+              </button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Question */}
           <p className="text-lg leading-relaxed">{challenge.question}</p>
+
+          {/* Spanish question */}
+          {showSpanish && challenge.questionEs && (
+            <div className="p-3 bg-muted/60 rounded-md border border-muted animate-fade-in">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {challenge.questionEs}
+              </p>
+            </div>
+          )}
 
           {/* Add word button */}
           <button
@@ -119,10 +151,17 @@ export function ChallengeCard({
           {challenge.hint && !revealed && (
             <div>
               {showHint ? (
-                <p className="text-sm text-muted-foreground bg-muted p-2 rounded-md flex items-start gap-2">
-                  <Lightbulb className="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
-                  {challenge.hint}
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground bg-muted p-2 rounded-md flex items-start gap-2">
+                    <Lightbulb className="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
+                    {challenge.hint}
+                  </p>
+                  {showSpanish && challenge.hintEs && (
+                    <p className="text-sm text-muted-foreground bg-muted/60 p-2 rounded-md ml-6 animate-fade-in">
+                      {challenge.hintEs}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <button
                   onClick={() => setShowHint(true)}
@@ -181,6 +220,11 @@ export function ChallengeCard({
               <div className="p-3 bg-muted rounded-md">
                 <p className="text-sm text-muted-foreground">Explicación:</p>
                 <p className="text-sm">{challenge.explanation}</p>
+                {showSpanish && challenge.explanationEs && (
+                  <p className="text-sm text-muted-foreground mt-2 pt-2 border-t border-muted-foreground/10 animate-fade-in">
+                    {challenge.explanationEs}
+                  </p>
+                )}
               </div>
 
               {/* Self-assessment */}
