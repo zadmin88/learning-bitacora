@@ -1,7 +1,7 @@
 "use node";
 
 import { ActionCtx } from "../_generated/server";
-import { action } from "../_generated/server";
+import { action, internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
 import { CHALLENGE_SYSTEM_PROMPT } from "../lib/prompts";
@@ -216,6 +216,34 @@ export const generateChallenge = action({
   handler: async (ctx, args): Promise<ChallengeResult> => {
     const level = args.challengeLevel ?? "intermediate";
     return doGenerateChallenge(ctx, args.conceptId, level);
+  },
+});
+
+export const preGenerateForEntry = internalAction({
+  args: {
+    entryId: v.id("entries"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const challengeLevel: string = await ctx.runQuery(
+      internal.challengeHelpers.getUserChallengeLevel,
+      { userId: args.userId }
+    );
+    const concepts = await ctx.runQuery(
+      internal.challengeHelpers.getConceptsByEntry,
+      { entryId: args.entryId }
+    );
+
+    for (const concept of concepts) {
+      try {
+        await doGenerateChallenge(ctx, concept._id, challengeLevel);
+      } catch (error) {
+        console.error(
+          `Pre-generation failed for concept ${concept._id}:`,
+          error
+        );
+      }
+    }
   },
 });
 

@@ -1,6 +1,27 @@
 import { internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
+export const getConceptsByEntry = internalQuery({
+  args: { entryId: v.id("entries") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("concepts")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .take(50);
+  },
+});
+
+export const getUserChallengeLevel = internalQuery({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .unique();
+    return profile?.challengeLevel ?? "intermediate";
+  },
+});
+
 export const getConcept = internalQuery({
   args: { conceptId: v.id("concepts") },
   handler: async (ctx, args) => {

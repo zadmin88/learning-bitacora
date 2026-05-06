@@ -186,6 +186,16 @@ export const processEntry = internalAction({
         entryId: args.entryId,
         count: concepts.length,
       });
+
+      // Pre-generate challenges in background
+      await ctx.scheduler.runAfter(
+        0,
+        internal.ai.challenge.preGenerateForEntry,
+        {
+          entryId: args.entryId,
+          userId: args.userId,
+        }
+      );
     } catch (error) {
       console.error("Error processing entry:", error);
     }
