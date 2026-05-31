@@ -34,6 +34,7 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  Clock,
 } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 
@@ -69,6 +70,11 @@ export function EntryCard({ entry }: { entry: Entry }) {
   const concepts = useQuery(
     api.concepts.listByEntry,
     expanded ? { entryId: entry._id } : "skip"
+  );
+
+  const nextReview = useQuery(
+    api.concepts.getNextReviewByEntry,
+    entry.conceptCount > 0 ? { entryId: entry._id } : "skip"
   );
 
   const updateEntry = useMutation(api.entries.update);
@@ -147,6 +153,17 @@ export function EntryCard({ entry }: { entry: Entry }) {
                 <Badge variant="secondary" className="text-xs">
                   <BookOpen className="h-3 w-3 mr-1" />
                   {entry.conceptCount}
+                </Badge>
+              )}
+              {nextReview !== undefined && nextReview !== null && (
+                <Badge
+                  variant={nextReview <= Date.now() ? "default" : "outline"}
+                  className={`text-xs ${nextReview <= Date.now() ? "bg-terracotta hover:bg-terracotta-dark" : ""}`}
+                >
+                  <Clock className="h-3 w-3 mr-1" />
+                  {nextReview <= Date.now()
+                    ? "Repaso pendiente"
+                    : formatDistanceToNow(nextReview, { addSuffix: true, locale: es })}
                 </Badge>
               )}
               <DropdownMenu>

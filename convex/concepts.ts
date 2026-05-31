@@ -72,6 +72,21 @@ export const listByUser = query({
   },
 });
 
+export const getNextReviewByEntry = query({
+  args: { entryId: v.id("entries") },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx);
+    const concepts = await ctx.db
+      .query("concepts")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .collect();
+    const userConcepts = concepts.filter((c) => c.userId === user._id);
+    if (userConcepts.length === 0) return null;
+    const earliest = Math.min(...userConcepts.map((c) => c.nextReview));
+    return earliest;
+  },
+});
+
 export const createManual = mutation({
   args: {
     term: v.string(),
