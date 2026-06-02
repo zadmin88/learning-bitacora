@@ -23,7 +23,7 @@ function createCloudflareProvider(
     embeddingDimensions: 768,
 
     async generateText(systemPrompt: string, userPrompt: string) {
-      const res = await fetch(`${baseUrl}/@cf/meta/llama-3-8b-instruct`, {
+      const res = await fetch(`${baseUrl}/@cf/google/gemma-4`, {
         method: "POST",
         headers,
         body: JSON.stringify({
