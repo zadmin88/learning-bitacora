@@ -40,11 +40,17 @@ function createCloudflareProvider(
           status: res.status,
         });
       }
-      const data = (await res.json()) as {
-        result: { response: string };
-        success: boolean;
-      };
-      return data.result.response;
+      const data = await res.json() as Record<string, any>;
+      // Cloudflare models may return { result: { response: "..." } }
+      // or { result: { choices: [{ message: { content: "..." } }] } }
+      const response =
+        data.result?.response ??
+        data.result?.choices?.[0]?.message?.content ??
+        data.result?.content;
+      if (!response) {
+        throw new Error(`Unexpected Cloudflare AI response shape: ${JSON.stringify(data).slice(0, 500)}`);
+      }
+      return response;
     },
 
     async generateEmbedding(text: string) {
