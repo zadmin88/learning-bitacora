@@ -166,6 +166,70 @@ export const update = mutation({
   },
 });
 
+export const reprocess = mutation({
+  args: { entryId: v.id("entries") },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx);
+    const entry = await ctx.db.get(args.entryId);
+    if (!entry || entry.userId !== user._id) {
+      throw new Error("Entry not found");
+    }
+
+    // Clear error and stale AI fields
+    await ctx.db.patch(args.entryId, {
+      processingError: undefined,
+      corrections: undefined,
+      praise: undefined,
+      overallLevel: undefined,
+      conceptCount: 0,
+    });
+
+    // Delete existing concepts
+    const concepts = await ctx.db
+      .query("concepts")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .collect();
+    for (const concept of concepts) {
+      await ctx.db.delete(concept._id);
+    }
+
+    // Delete existing embeddings
+    const embeddings = await ctx.db
+      .query("entryEmbeddings")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .collect();
+    for (const embedding of embeddings) {
+      await ctx.db.delete(embedding._id);
+    }
+
+    // Re-trigger AI processing
+    await ctx.scheduler.runAfter(0, internal.ai.extract.processEntry, {
+      entryId: args.entryId,
+      userId: user._id,
+      content: entry.content,
+    });
+    await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
+      entryId: args.entryId,
+      content: entry.content,
+    });
+    await ctx.scheduler.runAfter(0, internal.ai.embeddings.generateForEntry, {
+      entryId: args.entryId,
+      userId: user._id,
+      content: entry.content,
+    });
+  },
+});
+
+export const setProcessingError = internalMutation({
+  args: { entryId: v.id("entries") },
+  handler: async (ctx, args) => {
+    const entry = await ctx.db.get(args.entryId);
+    if (entry) {
+      await ctx.db.patch(args.entryId, { processingError: true });
+    }
+  },
+});
+
 export const updateConceptCount = internalMutation({
   args: { entryId: v.id("entries"), count: v.number() },
   handler: async (ctx, args) => {

@@ -27,6 +27,7 @@ export default defineSchema({
     praise: v.optional(v.string()),
     overallLevel: v.optional(v.string()),
     conceptCount: v.number(),
+    processingError: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_user", ["userId"])

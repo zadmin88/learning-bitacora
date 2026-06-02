@@ -198,6 +198,9 @@ export const processEntry = internalAction({
       );
     } catch (error) {
       console.error("Error processing entry:", error);
+      await ctx.runMutation(internal.entries.setProcessingError, {
+        entryId: args.entryId,
+      });
     }
   },
 });

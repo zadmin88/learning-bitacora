@@ -35,6 +35,8 @@ import {
   Pencil,
   Trash2,
   Clock,
+  RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 
@@ -55,6 +57,7 @@ interface Entry {
   overallLevel?: string;
   corrections?: any;
   conceptCount: number;
+  processingError?: boolean;
   createdAt: number;
 }
 
@@ -66,6 +69,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reprocessing, setReprocessing] = useState(false);
 
   const concepts = useQuery(
     api.concepts.listByEntry,
@@ -79,6 +83,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
 
   const updateEntry = useMutation(api.entries.update);
   const removeEntry = useMutation(api.entries.remove);
+  const reprocessEntry = useMutation(api.entries.reprocess);
 
   const corrections = entry.corrections as
     | Array<{
@@ -114,6 +119,17 @@ export function EntryCard({ entry }: { entry: Entry }) {
       console.error("Error updating entry:", error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleReprocess = async () => {
+    setReprocessing(true);
+    try {
+      await reprocessEntry({ entryId: entry._id });
+    } catch (error) {
+      console.error("Error reprocessing entry:", error);
+    } finally {
+      setReprocessing(false);
     }
   };
 
@@ -244,6 +260,26 @@ export function EntryCard({ entry }: { entry: Entry }) {
             >
               {entry.content}
             </p>
+          )}
+
+          {/* Processing error */}
+          {entry.processingError && !isEditing && (
+            <div className="mt-3 p-2 bg-destructive/10 rounded-md text-sm text-destructive flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>Error al procesar la entrada</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReprocess}
+                disabled={reprocessing}
+                className="shrink-0"
+              >
+                <RefreshCw className={`h-3 w-3 mr-1 ${reprocessing ? "animate-spin" : ""}`} />
+                {reprocessing ? "Procesando..." : "Reintentar"}
+              </Button>
+            </div>
           )}
 
           {/* Praise */}

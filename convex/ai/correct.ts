@@ -64,6 +64,9 @@ export const checkEntry = internalAction({
       });
     } catch (error) {
       console.error("Error checking entry:", error);
+      await ctx.runMutation(internal.entries.setProcessingError, {
+        entryId: args.entryId,
+      });
     }
   },
 });
