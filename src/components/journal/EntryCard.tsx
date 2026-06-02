@@ -85,6 +85,12 @@ export function EntryCard({ entry }: { entry: Entry }) {
   const removeEntry = useMutation(api.entries.remove);
   const reprocessEntry = useMutation(api.entries.reprocess);
 
+  // Detect silently failed processing: entry is old enough (>2 min) but has no AI data
+  const TWO_MINUTES = 2 * 60 * 1000;
+  const isStale = Date.now() - entry.createdAt > TWO_MINUTES;
+  const hasNoAIData = !entry.praise && !entry.overallLevel && entry.conceptCount === 0 && !entry.corrections;
+  const showError = entry.processingError || (isStale && hasNoAIData);
+
   const corrections = entry.corrections as
     | Array<{
         original: string;
@@ -263,7 +269,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
           )}
 
           {/* Processing error */}
-          {entry.processingError && !isEditing && (
+          {showError && !isEditing && (
             <div className="mt-3 p-2 bg-destructive/10 rounded-md text-sm text-destructive flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
