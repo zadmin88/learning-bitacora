@@ -8,7 +8,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, User, GraduationCap, Languages } from "lucide-react";
+import { LogOut, User, GraduationCap, Languages, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
 
 const LEVELS = [
   { value: "beginner", label: "Principiante" },
@@ -21,6 +22,7 @@ export default function SettingsPage() {
   const { user } = useCurrentUser();
   const updatePreferences = useMutation(api.users.updatePreferences);
 
+  const { theme, setTheme } = useTheme();
   const currentLevel = user?.profile?.challengeLevel ?? "intermediate";
   const showSpanish = user?.profile?.showSpanish ?? false;
 
@@ -124,6 +126,38 @@ export default function SettingsPage() {
                 Muestra la traducción al español de las preguntas, pistas y
                 explicaciones durante el repaso.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Sun className="h-5 w-5" />
+              Apariencia
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              {([
+                { value: "light", label: "Claro", icon: Sun },
+                { value: "dark", label: "Oscuro", icon: Moon },
+                { value: "system", label: "Sistema", icon: Monitor },
+              ] as const).map((opt) => (
+                <Badge
+                  key={opt.value}
+                  variant={theme === opt.value ? "default" : "outline"}
+                  className={`cursor-pointer px-3 py-1.5 text-sm flex items-center gap-1.5 ${
+                    theme === opt.value
+                      ? "bg-primary hover:bg-blue-dark text-white"
+                      : "hover:bg-secondary"
+                  }`}
+                  onClick={() => setTheme(opt.value)}
+                >
+                  <opt.icon className="h-3.5 w-3.5" />
+                  {opt.label}
+                </Badge>
+              ))}
             </div>
           </CardContent>
         </Card>
