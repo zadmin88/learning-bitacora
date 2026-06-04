@@ -1,56 +1,75 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Send, Sparkles } from "lucide-react";
+import { Send, Plus, X } from "lucide-react";
 
 const MOOD_OPTIONS = [
-  { emoji: "😊", label: "Genial" },
-  { emoji: "🤔", label: "Reflexivo" },
-  { emoji: "😤", label: "Frustrado" },
-  { emoji: "🎉", label: "Emocionado" },
-  { emoji: "😴", label: "Cansado" },
-  { emoji: "💪", label: "Motivado" },
+  { emoji: "\u{1F60A}", label: "Genial" },
+  { emoji: "\u{1F914}", label: "Reflexivo" },
+  { emoji: "\u{1F624}", label: "Frustrado" },
+  { emoji: "\u{1F389}", label: "Emocionado" },
+  { emoji: "\u{1F634}", label: "Cansado" },
+  { emoji: "\u{1F4AA}", label: "Motivado" },
 ];
 
-const WRITING_PROMPTS = [
-  "¿Qué palabra o frase nueva en inglés aprendiste hoy?",
-  "Describe una conversación que tuviste (o quisiste tener) en inglés.",
-  "Escribe sobre un error que cometiste y qué aprendiste de él.",
-  "Explica un concepto de tu trabajo/estudios usando inglés.",
-  "¿Qué contenido en inglés consumiste hoy (podcast, artículo, video)?",
-  "Escribe sobre tus metas para aprender inglés esta semana.",
-];
+interface ConceptEntry {
+  term: string;
+  definition: string;
+}
 
 export function EntryEditor() {
   const createEntry = useMutation(api.entries.create);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [content, setContent] = useState("");
+  const [concepts, setConcepts] = useState<ConceptEntry[]>([
+    { term: "", definition: "" },
+  ]);
   const [mood, setMood] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [showPrompts, setShowPrompts] = useState(true);
 
-  // Pre-fill content from discover page suggestions
-  useEffect(() => {
-    const prefill = searchParams.get("content");
-    if (prefill) {
-      setContent(prefill);
-      setShowPrompts(false);
-    }
-  }, [searchParams]);
+  const addConcept = () => {
+    setConcepts([...concepts, { term: "", definition: "" }]);
+  };
+
+  const removeConcept = (index: number) => {
+    if (concepts.length === 1) return;
+    setConcepts(concepts.filter((_, i) => i !== index));
+  };
+
+  const updateConcept = (
+    index: number,
+    field: keyof ConceptEntry,
+    value: string,
+  ) => {
+    const updated = [...concepts];
+    updated[index] = { ...updated[index], [field]: value };
+    setConcepts(updated);
+  };
+
+  const validConcepts = concepts.filter(
+    (c) => c.term.trim() && c.definition.trim(),
+  );
 
   const handleSubmit = async () => {
-    if (!content.trim()) return;
+    if (validConcepts.length === 0) return;
     setLoading(true);
     try {
-      await createEntry({ content: content.trim(), mood });
+      const content = validConcepts
+        .map((c) => `${c.term}: ${c.definition}`)
+        .join("\n");
+      await createEntry({
+        content,
+        mood,
+        concepts: validConcepts.map((c) => ({
+          term: c.term.trim(),
+          definition: c.definition.trim(),
+        })),
+      });
       router.push("/journal");
     } catch (error) {
       console.error("Error creating entry:", error);
@@ -59,50 +78,49 @@ export function EntryEditor() {
     }
   };
 
-  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
-
   return (
     <div className="space-y-4">
-      {/* Writing prompts */}
-      {showPrompts && content.length === 0 && (
-        <Card className="border-dashed border-terracotta/30 bg-terracotta/5">
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-terracotta" />
-              <span className="text-sm font-medium text-terracotta">
-                Ideas para Escribir
-              </span>
-              <button
-                onClick={() => setShowPrompts(false)}
-                className="ml-auto text-xs text-muted-foreground hover:text-foreground"
-              >
-                Ocultar
-              </button>
-            </div>
-            <div className="space-y-2">
-              {WRITING_PROMPTS.slice(0, 3).map((prompt, i) => (
-                <button
-                  key={i}
-                  onClick={() => setContent(prompt + "\n\n")}
-                  className="block text-left text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
-                >
-                  • {prompt}
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Editor */}
       <Card>
-        <CardContent className="pt-6">
-          <Textarea
-            placeholder="Escribe sobre lo que aprendiste hoy en inglés..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[300px] resize-none border-0 p-0 focus-visible:ring-0 text-base leading-relaxed"
-          />
+        <CardContent className="pt-6 space-y-4">
+          {concepts.map((concept, index) => (
+            <div key={index} className="flex items-start gap-3">
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  placeholder="Termino (ej: thoroughly)"
+                  value={concept.term}
+                  onChange={(e) => updateConcept(index, "term", e.target.value)}
+                  className="text-base"
+                />
+                <Input
+                  placeholder="Definicion (ej: make it complete and deep)"
+                  value={concept.definition}
+                  onChange={(e) =>
+                    updateConcept(index, "definition", e.target.value)
+                  }
+                  className="text-base"
+                />
+              </div>
+              {concepts.length > 1 && (
+                <button
+                  onClick={() => removeConcept(index)}
+                  className="mt-2 text-muted-foreground hover:text-destructive transition-colors"
+                  title="Eliminar"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          ))}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addConcept}
+            className="w-full border-dashed"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Agregar otro termino
+          </Button>
         </CardContent>
         <CardFooter className="flex items-center justify-between border-t pt-4">
           <div className="flex items-center gap-4">
@@ -126,15 +144,15 @@ export function EntryEditor() {
               ))}
             </div>
 
-            {/* Word count */}
             <span className="text-xs text-muted-foreground">
-              {wordCount} {wordCount === 1 ? "palabra" : "palabras"}
+              {validConcepts.length}{" "}
+              {validConcepts.length === 1 ? "termino" : "terminos"}
             </span>
           </div>
 
           <Button
             onClick={handleSubmit}
-            disabled={!content.trim() || loading}
+            disabled={validConcepts.length === 0 || loading}
             className="bg-terracotta hover:bg-terracotta-dark"
           >
             {loading ? (
@@ -149,10 +167,9 @@ export function EntryEditor() {
         </CardFooter>
       </Card>
 
-      {/* Info */}
       <p className="text-xs text-muted-foreground text-center">
-        Después de guardar, la IA analizará tu entrada, extraerá conceptos y
-        revisará tu escritura. Esto suele tomar unos segundos.
+        Los terminos que agregues se guardaran directamente como conceptos para
+        repasar.
       </p>
     </div>
   );

@@ -9,6 +9,9 @@ export const create = mutation({
     content: v.string(),
     language: v.optional(v.string()),
     mood: v.optional(v.string()),
+    concepts: v.optional(
+      v.array(v.object({ term: v.string(), definition: v.string() })),
+    ),
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
@@ -18,15 +21,38 @@ export const create = mutation({
       language: args.language ?? "en",
       source: "text",
       mood: args.mood,
-      conceptCount: 0,
+      conceptCount: args.concepts?.length ?? 0,
       createdAt: Date.now(),
     });
-    // Fire-and-forget AI processing
-    await ctx.scheduler.runAfter(0, internal.ai.extract.processEntry, {
-      entryId,
-      userId: user._id,
-      content: args.content,
-    });
+
+    if (args.concepts && args.concepts.length > 0) {
+      // User provided explicit terms — create concepts directly
+      for (const concept of args.concepts) {
+        await ctx.scheduler.runAfter(
+          0,
+          internal.concepts.createFromExtraction,
+          {
+            userId: user._id,
+            entryId,
+            type: "vocabulary",
+            term: concept.term,
+            definition: concept.definition,
+            context: `${concept.term}: ${concept.definition}`,
+            tags: [],
+            difficulty: 3,
+          },
+        );
+      }
+    } else {
+      // No explicit concepts — use AI extraction
+      await ctx.scheduler.runAfter(0, internal.ai.extract.processEntry, {
+        entryId,
+        userId: user._id,
+        content: args.content,
+      });
+    }
+
+    // Always run corrections and embeddings
     await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
       entryId,
       content: args.content,
