@@ -21,7 +21,7 @@ export function KnowledgeGarden({ breakdown }: KnowledgeGardenProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-display text-lg">
+        <CardTitle className="text-lg">
           Jardín del Conocimiento
         </CardTitle>
       </CardHeader>

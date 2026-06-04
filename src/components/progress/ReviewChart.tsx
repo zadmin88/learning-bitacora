@@ -31,7 +31,7 @@ export function ReviewChart({ data }: ReviewChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-display text-lg">
+        <CardTitle className="text-lg">
           Actividad de Repaso (30 días)
         </CardTitle>
       </CardHeader>

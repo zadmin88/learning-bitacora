@@ -42,7 +42,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <Link href="/">
-          <h1 className="font-display text-2xl font-bold text-charcoal">
+          <h1 className="text-2xl font-bold text-foreground">
             Bitácora
           </h1>
         </Link>
@@ -56,7 +56,7 @@ export function Sidebar() {
           </p>
           {user.profile && (
             <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-              <Flame className="h-3 w-3 text-terracotta" />
+              <Flame className="h-3 w-3 text-amber-streak" />
               <span>{user.profile.streak} días de racha</span>
             </div>
           )}
@@ -74,9 +74,9 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-terracotta/10 text-terracotta"
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
@@ -87,7 +87,7 @@ export function Sidebar() {
                 reviewCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className="ml-auto bg-terracotta text-white text-xs px-1.5 py-0"
+                    className="ml-auto bg-primary text-white text-xs px-1.5 py-0"
                   >
                     {reviewCount}
                   </Badge>

@@ -20,11 +20,11 @@ export function SearchResults({ result }: { result: SearchResult }) {
   return (
     <div className="space-y-6">
       {/* AI Answer */}
-      <Card className="border-terracotta/20 bg-terracotta/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardContent className="pt-4">
           <div className="flex items-start gap-2 mb-2">
-            <Sparkles className="h-4 w-4 text-terracotta mt-0.5" />
-            <span className="text-sm font-medium text-terracotta">
+            <Sparkles className="h-4 w-4 text-primary mt-0.5" />
+            <span className="text-sm font-medium text-primary">
               Respuesta de IA
             </span>
           </div>
@@ -48,7 +48,7 @@ export function SearchResults({ result }: { result: SearchResult }) {
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                     <span>{format(entry.createdAt, "d MMM yyyy", { locale: es })}</span>
                     {entry.conceptCount > 0 && (
-                      <span className="flex items-center gap-1 text-sage">
+                      <span className="flex items-center gap-1 text-emerald">
                         <BookOpen className="h-3 w-3" />
                         {entry.conceptCount} conceptos
                       </span>

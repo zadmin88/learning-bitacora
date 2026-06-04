@@ -134,7 +134,7 @@ export function EntryEditor() {
                   }
                   className={`text-lg p-1 rounded transition-all ${
                     mood === m.emoji
-                      ? "bg-terracotta/10 scale-110"
+                      ? "bg-primary/10 scale-110"
                       : "opacity-50 hover:opacity-100"
                   }`}
                   title={m.label}
@@ -153,7 +153,7 @@ export function EntryEditor() {
           <Button
             onClick={handleSubmit}
             disabled={validConcepts.length === 0 || loading}
-            className="bg-terracotta hover:bg-terracotta-dark"
+            className="bg-primary hover:bg-blue-dark"
           >
             {loading ? (
               "Guardando..."

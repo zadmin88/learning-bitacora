@@ -159,8 +159,8 @@ export function ReviewSession() {
   if (queue.length === 0 && !sessionQueue.current) {
     return (
       <div className="text-center py-12 max-w-md mx-auto">
-        <Brain className="h-12 w-12 text-sage mx-auto mb-4" />
-        <h3 className="font-display text-lg font-semibold mb-2">
+        <Brain className="h-12 w-12 text-emerald mx-auto mb-4" />
+        <h3 className="text-lg font-semibold mb-2">
           ¡Todo al día!
         </h3>
         <p className="text-muted-foreground text-sm mb-4">
@@ -168,7 +168,7 @@ export function ReviewSession() {
           crear nuevos conceptos que repasar.
         </p>
         <Link href="/journal/new">
-          <Button className="bg-terracotta hover:bg-terracotta-dark">
+          <Button className="bg-primary hover:bg-blue-dark">
             Escribir una Entrada
           </Button>
         </Link>

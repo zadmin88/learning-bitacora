@@ -55,9 +55,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card className="border-cream-dark">
+    <Card className="border-border">
       <CardHeader>
-        <CardTitle className="font-display text-2xl">Crear cuenta</CardTitle>
+        <CardTitle className="text-2xl">Crear cuenta</CardTitle>
         <CardDescription>
           Comienza a construir tu diario personal de aprendizaje
         </CardDescription>
@@ -147,7 +147,7 @@ export default function RegisterPage() {
         <CardFooter className="flex flex-col gap-4">
           <Button
             type="submit"
-            className="w-full bg-terracotta hover:bg-terracotta-dark"
+            className="w-full bg-primary hover:bg-blue-dark"
             disabled={loading}
           >
             {loading ? "Creando cuenta..." : "Crear cuenta"}
@@ -156,7 +156,7 @@ export default function RegisterPage() {
             ¿Ya tienes una cuenta?{" "}
             <Link
               href="/login"
-              className="text-terracotta hover:underline font-medium"
+              className="text-primary hover:underline font-medium"
             >
               Iniciar sesión
             </Link>

@@ -28,11 +28,11 @@ export default function SettingsPage() {
     <>
       <TopBar title="Ajustes" />
       <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-6">
-        <h1 className="font-display text-2xl font-bold">Ajustes</h1>
+        <h1 className="text-2xl font-bold">Ajustes</h1>
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-display text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2">
               <User className="h-5 w-5" />
               Cuenta
             </CardTitle>
@@ -51,7 +51,7 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-display text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2">
               <GraduationCap className="h-5 w-5" />
               Preferencias de Repaso
             </CardTitle>
@@ -69,7 +69,7 @@ export default function SettingsPage() {
                     variant={currentLevel === level.value ? "default" : "outline"}
                     className={`cursor-pointer px-3 py-1.5 text-sm ${
                       currentLevel === level.value
-                        ? "bg-terracotta hover:bg-terracotta-dark text-white"
+                        ? "bg-primary hover:bg-blue-dark text-white"
                         : "hover:bg-secondary"
                     }`}
                     onClick={() =>
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                   variant={showSpanish ? "default" : "outline"}
                   className={`cursor-pointer px-3 py-1.5 text-sm ${
                     showSpanish
-                      ? "bg-terracotta hover:bg-terracotta-dark text-white"
+                      ? "bg-primary hover:bg-blue-dark text-white"
                       : "hover:bg-secondary"
                   }`}
                   onClick={() => updatePreferences({ showSpanish: true })}
@@ -112,7 +112,7 @@ export default function SettingsPage() {
                   variant={!showSpanish ? "default" : "outline"}
                   className={`cursor-pointer px-3 py-1.5 text-sm ${
                     !showSpanish
-                      ? "bg-terracotta hover:bg-terracotta-dark text-white"
+                      ? "bg-primary hover:bg-blue-dark text-white"
                       : "hover:bg-secondary"
                   }`}
                   onClick={() => updatePreferences({ showSpanish: false })}

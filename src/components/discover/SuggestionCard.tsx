@@ -70,7 +70,7 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
           onClick={handleWriteAbout}
           variant="outline"
           size="sm"
-          className="gap-2 border-terracotta/30 text-terracotta hover:bg-terracotta/5"
+          className="gap-2 border-primary/30 text-primary hover:bg-primary/5"
         >
           <PenLine className="h-3.5 w-3.5" />
           Escribir sobre esta palabra

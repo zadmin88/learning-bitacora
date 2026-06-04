@@ -41,9 +41,9 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="border-cream-dark">
+    <Card className="border-border">
       <CardHeader>
-        <CardTitle className="font-display text-2xl">Bienvenido de vuelta</CardTitle>
+        <CardTitle className="text-2xl">Bienvenido de vuelta</CardTitle>
         <CardDescription>
           Inicia sesión para continuar tu viaje de aprendizaje
         </CardDescription>
@@ -91,7 +91,7 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col gap-4">
           <Button
             type="submit"
-            className="w-full bg-terracotta hover:bg-terracotta-dark"
+            className="w-full bg-primary hover:bg-blue-dark"
             disabled={loading}
           >
             {loading ? "Iniciando sesión..." : "Iniciar sesión"}
@@ -100,7 +100,7 @@ export default function LoginPage() {
             ¿No tienes una cuenta?{" "}
             <Link
               href="/register"
-              className="text-terracotta hover:underline font-medium"
+              className="text-primary hover:underline font-medium"
             >
               Regístrate
             </Link>

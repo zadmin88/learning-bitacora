@@ -13,7 +13,10 @@
       "Bash(find /mnt/myssd/Web-Development/Nextjs/learning-bitacora/src -type f -name *review* -o -name *challenge*)",
       "Bash(cat /mnt/myssd/Web-Development/Nextjs/learning-bitacora/src/app/\\\\\\(dashboard\\\\\\)/journal/new/page.tsx)",
       "Bash(cat /mnt/myssd/Web-Development/Nextjs/learning-bitacora/src/app/\\\\\\(dashboard\\\\\\)/review/page.tsx)",
-      "Bash(ls -la /c/Users/big_h/Documents/Web-Development/Nextjs/learning-bitacora/src/app/\\\\\\(dashboard\\\\\\)/journal/)"
+      "Bash(ls -la /c/Users/big_h/Documents/Web-Development/Nextjs/learning-bitacora/src/app/\\\\\\(dashboard\\\\\\)/journal/)",
+      "Bash(grep -E \"\\\\.\\(ts|js|json\\)$\")",
+      "Bash(ls -la /c/Users/big_h/Documents/Web-Development/Nextjs/learning-bitacora/src/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(npx next:*)"
     ]
   }
 }

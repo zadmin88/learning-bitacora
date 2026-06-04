@@ -9,8 +9,8 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
-        <div className="animate-pulse font-display text-2xl text-charcoal">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-2xl text-foreground">
           Bitácora
         </div>
       </div>

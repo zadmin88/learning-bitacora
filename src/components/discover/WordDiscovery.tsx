@@ -73,7 +73,7 @@ export function WordDiscovery() {
               variant={selectedTopic === topic.value ? "default" : "outline"}
               className={`cursor-pointer text-sm px-3 py-1.5 transition-colors ${
                 selectedTopic === topic.value
-                  ? "bg-terracotta hover:bg-terracotta-dark text-white"
+                  ? "bg-primary hover:bg-blue-dark text-white"
                   : "hover:bg-secondary"
               }`}
               onClick={() => setSelectedTopic(topic.value)}
@@ -95,7 +95,7 @@ export function WordDiscovery() {
               size="sm"
               className={
                 selectedDifficulty === diff.value
-                  ? "bg-terracotta hover:bg-terracotta-dark"
+                  ? "bg-primary hover:bg-blue-dark"
                   : ""
               }
               onClick={() => setSelectedDifficulty(diff.value)}
@@ -110,7 +110,7 @@ export function WordDiscovery() {
       <Button
         onClick={handleGenerate}
         disabled={!selectedTopic || loading}
-        className="bg-terracotta hover:bg-terracotta-dark gap-2"
+        className="bg-primary hover:bg-blue-dark gap-2"
       >
         {loading ? (
           <>

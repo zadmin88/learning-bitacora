@@ -28,7 +28,7 @@ export default function DashboardHome() {
         <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
           {/* Welcome section */}
           <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-foreground">
               Bienvenido de vuelta
               {user?.name ? `, ${user.name}` : ""}
             </h1>
@@ -42,7 +42,7 @@ export default function DashboardHome() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-terracotta" />
+                  <BookOpen className="h-4 w-4 text-primary" />
                   <span className="text-sm text-muted-foreground">
                     Entradas
                   </span>
@@ -60,7 +60,7 @@ export default function DashboardHome() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-sage" />
+                  <Brain className="h-4 w-4 text-emerald" />
                   <span className="text-sm text-muted-foreground">
                     Conceptos
                   </span>
@@ -78,7 +78,7 @@ export default function DashboardHome() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-terracotta" />
+                  <Brain className="h-4 w-4 text-primary" />
                   <span className="text-sm text-muted-foreground">Pendientes</span>
                 </div>
                 <div className="text-2xl font-bold mt-1">
@@ -94,7 +94,7 @@ export default function DashboardHome() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
-                  <Flame className="h-4 w-4 text-terracotta" />
+                  <Flame className="h-4 w-4 text-primary" />
                   <span className="text-sm text-muted-foreground">Racha</span>
                 </div>
                 <div className="text-2xl font-bold mt-1">
@@ -106,10 +106,10 @@ export default function DashboardHome() {
 
           {/* Action cards */}
           <div className="grid md:grid-cols-2 gap-4">
-            <Card className="border-terracotta/20">
+            <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle className="font-display flex items-center gap-2">
-                  <PenLine className="h-5 w-5 text-terracotta" />
+                <CardTitle className="flex items-center gap-2">
+                  <PenLine className="h-5 w-5 text-primary" />
                   Escribir la Entrada de Hoy
                 </CardTitle>
               </CardHeader>
@@ -119,7 +119,7 @@ export default function DashboardHome() {
                   y revisará tu escritura.
                 </p>
                 <Link href="/journal/new">
-                  <Button className="bg-terracotta hover:bg-terracotta-dark">
+                  <Button className="bg-primary hover:bg-blue-dark">
                     Empezar a Escribir
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -127,10 +127,10 @@ export default function DashboardHome() {
               </CardContent>
             </Card>
 
-            <Card className="border-sage/20">
+            <Card className="border-emerald/20">
               <CardHeader>
-                <CardTitle className="font-display flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-sage" />
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-emerald" />
                   Repasar Conceptos
                 </CardTitle>
               </CardHeader>
@@ -145,7 +145,7 @@ export default function DashboardHome() {
                 <Link href="/review">
                   <Button
                     variant="outline"
-                    className="border-sage text-sage hover:bg-sage/10"
+                    className="border-emerald text-emerald hover:bg-emerald/10"
                     disabled={reviewCount === 0}
                   >
                     Empezar Repaso
@@ -159,7 +159,7 @@ export default function DashboardHome() {
           {/* Recent entries */}
           {entries && entries.length > 0 && (
             <div>
-              <h2 className="font-display text-xl font-semibold mb-3">
+              <h2 className="text-xl font-semibold mb-3">
                 Entradas Recientes
               </h2>
               <div className="space-y-3">
@@ -180,7 +180,7 @@ export default function DashboardHome() {
                                 })}
                               </span>
                               {entry.conceptCount > 0 && (
-                                <span className="text-sage">
+                                <span className="text-emerald">
                                   {entry.conceptCount} conceptos
                                 </span>
                               )}
@@ -196,7 +196,7 @@ export default function DashboardHome() {
               {entries.length > 3 && (
                 <Link
                   href="/journal"
-                  className="text-sm text-terracotta hover:underline mt-2 inline-block"
+                  className="text-sm text-primary hover:underline mt-2 inline-block"
                 >
                   Ver todas las entradas →
                 </Link>
@@ -209,7 +209,7 @@ export default function DashboardHome() {
             <Card className="border-dashed">
               <CardContent className="py-12 text-center">
                 <PenLine className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="font-display text-lg font-semibold mb-2">
+                <h3 className="text-lg font-semibold mb-2">
                   Comienza Tu Viaje
                 </h3>
                 <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
@@ -218,7 +218,7 @@ export default function DashboardHome() {
                   personalizados.
                 </p>
                 <Link href="/journal/new">
-                  <Button className="bg-terracotta hover:bg-terracotta-dark">
+                  <Button className="bg-primary hover:bg-blue-dark">
                     Escribe Tu Primera Entrada
                   </Button>
                 </Link>

@@ -115,7 +115,7 @@ export function ChallengeCard({
                 onClick={() => setShowSpanish(!showSpanish)}
                 className={`text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
                   showSpanish
-                    ? "bg-terracotta/10 text-terracotta"
+                    ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -141,7 +141,7 @@ export function ChallengeCard({
           {/* Add word button */}
           <button
             onClick={handleAddConcept}
-            className="text-sm text-terracotta hover:underline flex items-center gap-1"
+            className="text-sm text-primary hover:underline flex items-center gap-1"
           >
             <Plus className="h-3 w-3" />
             Agregar Palabra
@@ -165,7 +165,7 @@ export function ChallengeCard({
               ) : (
                 <button
                   onClick={() => setShowHint(true)}
-                  className="text-sm text-terracotta hover:underline flex items-center gap-1"
+                  className="text-sm text-primary hover:underline flex items-center gap-1"
                 >
                   <Lightbulb className="h-3 w-3" />
                   Mostrar pista
@@ -187,7 +187,7 @@ export function ChallengeCard({
               <div className="flex gap-2">
                 <Button
                   type="submit"
-                  className="bg-terracotta hover:bg-terracotta-dark flex-1"
+                  className="bg-primary hover:bg-blue-dark flex-1"
                   disabled={!userAnswer.trim()}
                 >
                   Verificar Respuesta
@@ -213,9 +213,9 @@ export function ChallengeCard({
                   <p className="font-medium">{userAnswer}</p>
                 </div>
               )}
-              <div className="p-3 bg-sage/10 rounded-md border border-sage/20">
+              <div className="p-3 bg-emerald/10 rounded-md border border-emerald/20">
                 <p className="text-sm text-muted-foreground">Respuesta correcta:</p>
-                <p className="font-medium text-sage-dark">{challenge.answer}</p>
+                <p className="font-medium text-emerald-dark">{challenge.answer}</p>
               </div>
               <div className="p-3 bg-muted rounded-md">
                 <p className="text-sm text-muted-foreground">Explicación:</p>
@@ -231,7 +231,7 @@ export function ChallengeCard({
               <div className="flex gap-2 pt-2">
                 <Button
                   onClick={() => onAnswer(true)}
-                  className="flex-1 bg-sage hover:bg-sage-dark"
+                  className="flex-1 bg-emerald hover:bg-emerald-dark"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Lo sabía
@@ -260,7 +260,7 @@ export function ChallengeCard({
             </DialogTitle>
           </DialogHeader>
           {conceptSaved ? (
-            <div className="flex items-center gap-2 text-sage-dark py-4 justify-center">
+            <div className="flex items-center gap-2 text-emerald-dark py-4 justify-center">
               <CheckCircle className="h-5 w-5" />
               <span className="font-medium">Concepto guardado</span>
             </div>
@@ -299,7 +299,7 @@ export function ChallengeCard({
                 Cancelar
               </Button>
               <Button
-                className="bg-terracotta hover:bg-terracotta-dark"
+                className="bg-primary hover:bg-blue-dark"
                 onClick={handleSaveConcept}
                 disabled={!newTerm.trim() || savingConcept}
               >

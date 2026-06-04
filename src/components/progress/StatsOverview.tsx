@@ -27,13 +27,13 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
       label: "Entradas de Diario",
       value: stats.totalEntries,
       icon: BookOpen,
-      color: "text-terracotta",
+      color: "text-primary",
     },
     {
       label: "Conceptos Aprendidos",
       value: stats.totalConcepts,
       icon: Brain,
-      color: "text-sage",
+      color: "text-emerald",
     },
     {
       label: "Dominados",
@@ -51,13 +51,13 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
       label: "Precisión",
       value: `${stats.accuracy}%`,
       icon: CheckCircle,
-      color: "text-sage",
+      color: "text-emerald",
     },
     {
       label: "Días de Racha",
       value: stats.streak,
       icon: Flame,
-      color: "text-terracotta",
+      color: "text-primary",
     },
   ];
 

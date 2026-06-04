@@ -17,7 +17,7 @@ export default function ProgressPage() {
     <>
       <TopBar title="Progreso" />
       <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
-        <h1 className="font-display text-2xl font-bold">Tu Progreso</h1>
+        <h1 className="text-2xl font-bold">Tu Progreso</h1>
 
         {stats === undefined ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

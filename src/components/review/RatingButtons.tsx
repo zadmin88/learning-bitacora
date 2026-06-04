@@ -32,7 +32,7 @@ function formatInterval(ms: number): string {
 const ratingConfig = [
   { value: 1, label: "Otra vez", color: "bg-red-500 hover:bg-red-600", grade: Rating.Again },
   { value: 2, label: "Difícil", color: "bg-orange-500 hover:bg-orange-600", grade: Rating.Hard },
-  { value: 3, label: "Bien", color: "bg-sage hover:bg-sage-dark", grade: Rating.Good },
+  { value: 3, label: "Bien", color: "bg-emerald hover:bg-emerald-dark", grade: Rating.Good },
   { value: 4, label: "Fácil", color: "bg-blue-500 hover:bg-blue-600", grade: Rating.Easy },
 ];
 

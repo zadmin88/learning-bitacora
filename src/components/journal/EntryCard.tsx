@@ -180,7 +180,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
               {nextReview !== undefined && nextReview !== null && (
                 <Badge
                   variant={nextReview <= Date.now() ? "default" : "outline"}
-                  className={`text-xs ${nextReview <= Date.now() ? "bg-terracotta hover:bg-terracotta-dark" : ""}`}
+                  className={`text-xs ${nextReview <= Date.now() ? "bg-primary hover:bg-blue-dark" : ""}`}
                 >
                   <Clock className="h-3 w-3 mr-1" />
                   {nextReview <= Date.now()
@@ -230,7 +230,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
                     }
                     className={`text-lg p-1 rounded transition-all ${
                       editMood === m.emoji
-                        ? "bg-terracotta/10 scale-110"
+                        ? "bg-primary/10 scale-110"
                         : "opacity-50 hover:opacity-100"
                     }`}
                     title={m.label}
@@ -250,7 +250,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
                 </Button>
                 <Button
                   size="sm"
-                  className="bg-terracotta hover:bg-terracotta-dark"
+                  className="bg-primary hover:bg-blue-dark"
                   onClick={handleSaveEdit}
                   disabled={!editContent.trim() || saving}
                 >
@@ -290,7 +290,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
 
           {/* Praise */}
           {entry.praise && expanded && !isEditing && (
-            <div className="mt-3 p-2 bg-sage/10 rounded-md text-sm text-sage-dark flex items-start gap-2">
+            <div className="mt-3 p-2 bg-emerald/10 rounded-md text-sm text-emerald-dark flex items-start gap-2">
               <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" />
               <span>{entry.praise}</span>
             </div>
@@ -325,7 +325,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
           {!isEditing && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="mt-2 text-xs text-terracotta hover:underline flex items-center gap-1"
+              className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
             >
               {expanded ? (
                 <>

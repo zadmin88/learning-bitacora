@@ -26,7 +26,7 @@ export function TopBar({ title }: { title?: string }) {
       </Sheet>
 
       {title && (
-        <h2 className="font-display text-lg font-semibold">{title}</h2>
+        <h2 className="text-lg font-semibold">{title}</h2>
       )}
     </header>
   );

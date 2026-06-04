@@ -27,13 +27,13 @@ export function ReviewSummary({
   return (
     <Card className="max-w-md mx-auto">
       <CardHeader className="text-center">
-        <Trophy className="h-12 w-12 text-terracotta mx-auto mb-2" />
-        <CardTitle className="font-display text-2xl">¡Repaso Completado!</CardTitle>
+        <Trophy className="h-12 w-12 text-primary mx-auto mb-2" />
+        <CardTitle className="text-2xl">¡Repaso Completado!</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="flex items-center justify-center gap-1 text-sage">
+            <div className="flex items-center justify-center gap-1 text-emerald">
               <CheckCircle className="h-4 w-4" />
               <span className="text-2xl font-bold">{correctCount}</span>
             </div>
@@ -58,7 +58,7 @@ export function ReviewSummary({
         </div>
 
         <div className="text-center">
-          <p className="text-3xl font-bold text-terracotta">{accuracy}%</p>
+          <p className="text-3xl font-bold text-primary">{accuracy}%</p>
           <p className="text-sm text-muted-foreground">Precisión</p>
         </div>
 
@@ -77,7 +77,7 @@ export function ReviewSummary({
             </Button>
           </Link>
           <Link href="/journal/new" className="flex-1">
-            <Button className="w-full bg-terracotta hover:bg-terracotta-dark">
+            <Button className="w-full bg-primary hover:bg-blue-dark">
               Escribir Entrada
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

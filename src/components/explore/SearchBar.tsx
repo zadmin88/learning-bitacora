@@ -34,7 +34,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
       </div>
       <Button
         type="submit"
-        className="bg-terracotta hover:bg-terracotta-dark"
+        className="bg-primary hover:bg-blue-dark"
         disabled={!query.trim() || isLoading}
       >
         {isLoading ? (

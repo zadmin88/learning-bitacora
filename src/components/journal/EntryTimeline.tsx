@@ -37,7 +37,7 @@ export function EntryTimeline() {
     return (
       <div className="text-center py-12">
         <PenLine className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-        <h3 className="font-display text-lg font-semibold mb-2">
+        <h3 className="text-lg font-semibold mb-2">
           Aún no hay entradas
         </h3>
         <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
@@ -45,7 +45,7 @@ export function EntryTimeline() {
           se convierte en material de repaso personalizado.
         </p>
         <Link href="/journal/new">
-          <Button className="bg-terracotta hover:bg-terracotta-dark">
+          <Button className="bg-primary hover:bg-blue-dark">
             Escribe Tu Primera Entrada
           </Button>
         </Link>
@@ -65,7 +65,7 @@ export function EntryTimeline() {
     <div className="space-y-6">
       {Object.entries(grouped).map(([dateLabel, dateEntries]) => (
         <div key={dateLabel}>
-          <h3 className="font-display text-sm font-semibold text-muted-foreground mb-3 sticky top-14 bg-background/80 backdrop-blur-sm py-1 z-10">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3 sticky top-14 bg-background/80 backdrop-blur-sm py-1 z-10">
             {dateLabel}
           </h3>
           <div className="space-y-3">
