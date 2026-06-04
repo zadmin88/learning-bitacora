@@ -59,23 +59,31 @@ export function RatingButtons({ onRate, disabled, cardState }: RatingButtonsProp
     });
   }, [cardState]);
 
+  const isNewCard = cardState?.reps === 0;
+  const visibleRatings = isNewCard
+    ? ratingConfig.filter((r) => r.grade !== Rating.Easy)
+    : ratingConfig;
+
   return (
-    <div className="grid grid-cols-4 gap-2">
-      {ratingConfig.map((r, i) => (
-        <button
-          key={r.value}
-          onClick={() => onRate(r.value)}
-          disabled={disabled}
-          className={`${r.color} text-white rounded-lg p-3 text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          <span className="block text-sm font-semibold">{r.label}</span>
-          {intervals && (
-            <span className="block text-xs opacity-90 font-medium mt-0.5">
-              {formatInterval(intervals[i])}
-            </span>
-          )}
-        </button>
-      ))}
+    <div className={`grid gap-2 ${isNewCard ? "grid-cols-3" : "grid-cols-4"}`}>
+      {visibleRatings.map((r) => {
+        const intervalIndex = ratingConfig.indexOf(r);
+        return (
+          <button
+            key={r.value}
+            onClick={() => onRate(r.value)}
+            disabled={disabled}
+            className={`${r.color} text-white rounded-lg p-3 text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <span className="block text-sm font-semibold">{r.label}</span>
+            {intervals && (
+              <span className="block text-xs opacity-90 font-medium mt-0.5">
+                {formatInterval(intervals[intervalIndex])}
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
