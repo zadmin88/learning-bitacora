@@ -59,17 +59,13 @@ export function EntryEditor() {
     if (validConcepts.length === 0) return;
     setLoading(true);
     try {
-      const content = validConcepts
-        .map((c) => `${c.term}: ${c.definition}`)
-        .join("\n");
-      await createEntry({
-        content,
-        mood,
-        concepts: validConcepts.map((c) => ({
-          term: c.term.trim(),
-          definition: c.definition.trim(),
-        })),
-      });
+      for (const c of validConcepts) {
+        await createEntry({
+          content: `${c.term.trim()}: ${c.definition.trim()}`,
+          mood,
+          concepts: [{ term: c.term.trim(), definition: c.definition.trim() }],
+        });
+      }
       router.push("/journal");
     } catch (error) {
       console.error("Error creating entry:", error);

@@ -140,14 +140,24 @@ export const processEntry = internalAction({
             `Analyze this language learner's entry and extract only the main concept(s) the learner is studying:\n\n${args.content}`
           );
 
+          const repairJson = (raw: string): string => {
+            return raw
+              .replace(/,\s*([}\]])/g, "$1") // trailing commas
+              .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // unquoted keys
+              .replace(/:\s*'([^']*)'/g, ': "$1"'); // single-quoted values
+          };
+
           try {
-            const sanitized = text.replace(/,\s*([}\]])/g, "$1");
-            concepts = JSON.parse(sanitized);
+            concepts = JSON.parse(repairJson(text));
           } catch {
             const jsonMatch = text.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
-              const cleaned = jsonMatch[0].replace(/,\s*([}\]])/g, "$1");
-              concepts = JSON.parse(cleaned);
+              try {
+                concepts = JSON.parse(repairJson(jsonMatch[0]));
+              } catch {
+                console.error("Failed to parse extraction response:", text);
+                return;
+              }
             } else {
               console.error("Failed to parse extraction response:", text);
               return;
