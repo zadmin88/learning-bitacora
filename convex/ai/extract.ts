@@ -140,29 +140,62 @@ export const processEntry = internalAction({
             `Analyze this language learner's entry and extract only the main concept(s) the learner is studying:\n\n${args.content}`
           );
 
-          const repairJson = (raw: string): string => {
-            return raw
-              .replace(/,\s*([}\]])/g, "$1") // trailing commas
-              .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // unquoted keys
-              .replace(/:\s*'([^']*)'/g, ': "$1"'); // single-quoted values
+          const repairJson = (raw: string): string =>
+            raw
+              .replace(/,\s*([}\]])/g, "$1")
+              .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
+              .replace(/:\s*'([^']*)'/g, ': "$1"');
+
+          const tryParse = (s: string): any[] | null => {
+            try {
+              const parsed = JSON.parse(repairJson(s));
+              if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            } catch {}
+            return null;
           };
 
-          try {
-            concepts = JSON.parse(repairJson(text));
-          } catch {
-            const jsonMatch = text.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-              try {
-                concepts = JSON.parse(repairJson(jsonMatch[0]));
-              } catch {
-                console.error("Failed to parse extraction response:", text);
-                return;
+          // Strategy 1: full text is a clean JSON array
+          let parsed = tryParse(text);
+
+          // Strategy 2: walk backwards — find the last well-formed JSON array
+          // (reasoning models write reasoning first, JSON last)
+          if (!parsed) {
+            for (let i = text.length - 1; i >= 0 && !parsed; i--) {
+              if (text[i] !== "]") continue;
+              let depth = 0;
+              for (let j = i; j >= 0; j--) {
+                if (text[j] === "]") depth++;
+                else if (text[j] === "[") {
+                  depth--;
+                  if (depth === 0) {
+                    parsed = tryParse(text.slice(j, i + 1));
+                    break;
+                  }
+                }
               }
-            } else {
-              console.error("Failed to parse extraction response:", text);
-              return;
             }
           }
+
+          // Strategy 3: collect individual JSON objects from ```json ... ``` blocks
+          // (reasoning models often write each object in its own code block)
+          if (!parsed) {
+            const objectsFromBlocks: any[] = [];
+            for (const m of text.matchAll(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/g)) {
+              try {
+                const obj = JSON.parse(repairJson(m[1]));
+                if (obj && typeof obj.term === "string" && typeof obj.type === "string") {
+                  objectsFromBlocks.push(obj);
+                }
+              } catch {}
+            }
+            if (objectsFromBlocks.length > 0) parsed = objectsFromBlocks;
+          }
+
+          if (!parsed) {
+            console.error("Failed to parse extraction response:", text);
+            return;
+          }
+          concepts = parsed;
         } catch (aiError: any) {
           if (aiError?.status === 429) {
             console.warn(
