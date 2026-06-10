@@ -7,7 +7,7 @@ import { getProvider, EMBEDDING_DIMENSIONS } from "../lib/aiProvider";
 
 const MAX_QUOTA_RETRIES = 3;
 
-// Ms until shortly after the next Cloudflare daily quota reset (00:00 UTC)
+// Ms until shortly after the next daily quota reset (00:00 UTC)
 function msUntilNextQuotaReset(): number {
   const reset = new Date();
   reset.setUTCHours(24, 5, 0, 0); // next midnight UTC + 5 min margin

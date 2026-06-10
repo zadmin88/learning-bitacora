@@ -133,9 +133,10 @@ function combineProviders(
 }
 
 // Returns the active provider based on env vars, or null for mock mode.
-// Text generation prefers Gemini (generous free tier, fast), falling back to
-// Cloudflare on quota errors. Embeddings stay on Cloudflare (768 dims,
-// matches the schema's vector index) until a migration changes that.
+// Gemini is primary for both text and embeddings (generous free tier, fast),
+// falling back to Cloudflare for text on quota errors. Embeddings do NOT
+// fall back to Cloudflare — its model produces a different dimension count
+// (768 vs Gemini's 3072), and the schema's vector index is fixed to one size.
 export function getProvider(): AIProvider | null {
   const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const cfToken = process.env.CLOUDFLARE_AI_API_TOKEN;
@@ -146,7 +147,7 @@ export function getProvider(): AIProvider | null {
   const gemini = geminiKey ? createGeminiProvider(geminiKey) : null;
 
   if (gemini && cloudflare) {
-    return combineProviders(gemini, cloudflare, cloudflare);
+    return combineProviders(gemini, cloudflare, gemini);
   }
   if (gemini) {
     return gemini;
@@ -154,4 +155,4 @@ export function getProvider(): AIProvider | null {
   return cloudflare;
 }
 
-export const EMBEDDING_DIMENSIONS = 768;
+export const EMBEDDING_DIMENSIONS = 3072;

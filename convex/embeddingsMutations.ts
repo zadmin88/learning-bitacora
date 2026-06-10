@@ -1,6 +1,20 @@
 import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
+// One-off migration helper: deletes all stored embeddings so they can be
+// regenerated with a different model/dimension count.
+// Run with: npx convex run embeddingsMutations:clearAll
+export const clearAll = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("entryEmbeddings").collect();
+    for (const e of all) {
+      await ctx.db.delete(e._id);
+    }
+    return { deleted: all.length };
+  },
+});
+
 export const storeEmbedding = internalMutation({
   args: {
     entryId: v.id("entries"),
