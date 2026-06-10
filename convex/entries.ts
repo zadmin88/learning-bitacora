@@ -54,11 +54,15 @@ export const create = mutation({
       });
     }
 
-    // Always run corrections and embeddings
-    await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
-      entryId,
-      content: args.content,
-    });
+    if (!args.concepts || args.concepts.length === 0) {
+      // Corrections only make sense for freeform journal writing —
+      // a "term: definition" entry is the user's own gloss, not a
+      // sentence to grammar-check
+      await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
+        entryId,
+        content: args.content,
+      });
+    }
     await ctx.scheduler.runAfter(0, internal.ai.embeddings.generateForEntry, {
       entryId,
       userId: user._id,
@@ -261,11 +265,14 @@ export const reprocess = mutation({
         userId: user._id,
         content: entry.content,
       });
+      // Corrections only make sense for freeform journal writing —
+      // a "term: definition" entry is the user's own gloss, not a
+      // sentence to grammar-check
+      await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
+        entryId: args.entryId,
+        content: entry.content,
+      });
     }
-    await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
-      entryId: args.entryId,
-      content: entry.content,
-    });
     await ctx.scheduler.runAfter(0, internal.ai.embeddings.generateForEntry, {
       entryId: args.entryId,
       userId: user._id,
