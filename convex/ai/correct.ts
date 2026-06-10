@@ -26,19 +26,26 @@ export const checkEntry = internalAction({
 
       const provider = getProvider();
       if (provider) {
-        const text = await provider.generateText(
-          CORRECTION_SYSTEM_PROMPT,
-          `Review this journal entry:\n\n${args.content}`
-        );
+        let text: string;
+        try {
+          text = await provider.generateText(
+            CORRECTION_SYSTEM_PROMPT,
+            `Review this journal entry:\n\n${args.content}`
+          );
+        } catch (aiError: any) {
+          if (aiError?.status === 429) {
+            console.warn("AI API quota exceeded (429) — skipping corrections");
+            return;
+          }
+          throw aiError;
+        }
 
         try {
-          // Strip trailing commas before ] or } (common AI output issue)
           const sanitized = text.replace(/,\s*([}\]])/g, "$1");
           result = JSON.parse(sanitized);
         } catch {
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
-            // Strip trailing commas before ] or } (common AI output issue)
             const cleaned = jsonMatch[0].replace(/,\s*([}\]])/g, "$1");
             result = JSON.parse(cleaned);
           } else {

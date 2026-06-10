@@ -128,30 +128,41 @@ Difficulty: ${concept.difficulty}/5`;
       userPrompt += `\n\n${levelInstruction}`;
     }
 
-    const text = await provider.generateText(
-      CHALLENGE_SYSTEM_PROMPT,
-      userPrompt
-    );
-
+    let text: string;
     try {
-      challenge = JSON.parse(text);
-    } catch {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        challenge = JSON.parse(jsonMatch[0]);
+      text = await provider.generateText(CHALLENGE_SYSTEM_PROMPT, userPrompt);
+    } catch (aiError: any) {
+      if (aiError?.status === 429) {
+        console.warn("AI API quota exceeded (429) — using mock challenge");
+        text = "";
       } else {
-        challenge = {
-          question: `What does "${concept.term}" mean?`,
-          hint: concept.context,
-          answer: concept.definition || concept.term,
-          explanation: `"${concept.term}" was found in your journal entry.`,
-          questionEs: `¿Qué significa "${concept.term}"?`,
-          hintEs: concept.context,
-          explanationEs: `"${concept.term}" fue encontrado en tu entrada de diario.`,
-        };
+        throw aiError;
       }
     }
-  } else {
+
+    if (text) {
+      try {
+        challenge = JSON.parse(text);
+      } catch {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          challenge = JSON.parse(jsonMatch[0]);
+        } else {
+          challenge = {
+            question: `What does "${concept.term}" mean?`,
+            hint: concept.context,
+            answer: concept.definition || concept.term,
+            explanation: `"${concept.term}" was found in your journal entry.`,
+            questionEs: `¿Qué significa "${concept.term}"?`,
+            hintEs: concept.context,
+            explanationEs: `"${concept.term}" fue encontrado en tu entrada de diario.`,
+          };
+        }
+      }
+    }
+  }
+
+  if (!challenge) {
     // Mock mode
     console.log("No AI provider configured — using mock challenge");
     if (challengeType === "fill_gap") {
