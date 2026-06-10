@@ -196,8 +196,8 @@ export const processEntry = internalAction({
             return;
           }
           concepts = parsed;
-        } catch (aiError: any) {
-          if (aiError?.status === 429) {
+        } catch (aiError: unknown) {
+          if ((aiError as { status?: number })?.status === 429) {
             console.warn(
               "AI API quota exceeded (429) — falling back to mock extraction"
             );

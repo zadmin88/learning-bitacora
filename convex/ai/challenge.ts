@@ -35,16 +35,19 @@ async function doGenerateChallenge(
   conceptId: Id<"concepts">,
   challengeLevel: string
 ): Promise<ChallengeResult> {
+  type ConceptDoc = { _id: Id<"concepts">; type: string; term: string; definition?: string; context?: string; difficulty?: number };
+  type CachedDoc = { generatedAt: number; challengeType: string; question: string; hint?: string; answer: string; explanation: string; questionEs?: string; hintEs?: string; explanationEs?: string } | null;
+
   // Load concept
-  const concept: any = await ctx.runQuery(
+  const concept = await ctx.runQuery(
     internal.challengeHelpers.getConcept,
     { conceptId }
-  );
+  ) as ConceptDoc | null;
   if (!concept) throw new Error("Concept not found");
 
   // Determine challenge type and check cache
   let challengeType: string;
-  let cached: any = null;
+  let cached: CachedDoc = null;
 
   if (concept.type === "error") {
     challengeType = "error_correction";
@@ -96,7 +99,7 @@ async function doGenerateChallenge(
     questionEs?: string;
     hintEs?: string;
     explanationEs?: string;
-  };
+  } | undefined = undefined;
 
   const provider = getProvider();
   if (provider) {
@@ -128,11 +131,11 @@ Difficulty: ${concept.difficulty}/5`;
       userPrompt += `\n\n${levelInstruction}`;
     }
 
-    let text: string;
+    let text = "";
     try {
       text = await provider.generateText(CHALLENGE_SYSTEM_PROMPT, userPrompt);
-    } catch (aiError: any) {
-      if (aiError?.status === 429) {
+    } catch (aiError: unknown) {
+      if ((aiError as { status?: number })?.status === 429) {
         console.warn("AI API quota exceeded (429) — using mock challenge");
         text = "";
       } else {
@@ -197,6 +200,8 @@ Difficulty: ${concept.difficulty}/5`;
       };
     }
   }
+
+  if (!challenge) throw new Error("Challenge generation failed");
 
   // Cache the result
   await ctx.runMutation(internal.challengeHelpers.cacheChallenge, {

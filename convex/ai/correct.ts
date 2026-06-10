@@ -32,8 +32,8 @@ export const checkEntry = internalAction({
             CORRECTION_SYSTEM_PROMPT,
             `Review this journal entry:\n\n${args.content}`
           );
-        } catch (aiError: any) {
-          if (aiError?.status === 429) {
+        } catch (aiError: unknown) {
+          if ((aiError as { status?: number })?.status === 429) {
             console.warn("AI API quota exceeded (429) — skipping corrections");
             return;
           }
