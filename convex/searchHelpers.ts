@@ -21,6 +21,28 @@ export const getAllEntries = internalQuery({
   },
 });
 
+export const getEntriesMissingEmbeddings = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const entries = await ctx.db.query("entries").take(500);
+    const missing = [];
+    for (const entry of entries) {
+      const embedding = await ctx.db
+        .query("entryEmbeddings")
+        .withIndex("by_entry", (q) => q.eq("entryId", entry._id))
+        .unique();
+      if (!embedding) {
+        missing.push({
+          _id: entry._id,
+          userId: entry.userId,
+          content: entry.content,
+        });
+      }
+    }
+    return missing;
+  },
+});
+
 export const getEntriesByEmbeddings = internalQuery({
   args: { embeddingIds: v.array(v.id("entryEmbeddings")) },
   handler: async (ctx, args) => {

@@ -100,16 +100,52 @@ function createGeminiProvider(apiKey: string): AIProvider {
   };
 }
 
+// Wraps a primary provider with a fallback for text generation when the
+// primary's quota is exhausted (429). Embeddings never fall back: vectors
+// from different models are not comparable, so mixing them in the same
+// vector index would corrupt semantic search.
+function withTextFallback(
+  primary: AIProvider,
+  fallback: AIProvider
+): AIProvider {
+  return {
+    embeddingDimensions: primary.embeddingDimensions,
+
+    async generateText(systemPrompt: string, userPrompt: string) {
+      try {
+        return await primary.generateText(systemPrompt, userPrompt);
+      } catch (error: unknown) {
+        if ((error as { status?: number })?.status === 429) {
+          console.warn(
+            "Primary AI provider quota exceeded (429) — falling back to Gemini for text generation"
+          );
+          return await fallback.generateText(systemPrompt, userPrompt);
+        }
+        throw error;
+      }
+    },
+
+    async generateEmbedding(text: string) {
+      return await primary.generateEmbedding(text);
+    },
+  };
+}
+
 // Returns the active provider based on env vars, or null for mock mode
 // Priority: Cloudflare (free) > Gemini > null (mock)
 export function getProvider(): AIProvider | null {
   const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const cfToken = process.env.CLOUDFLARE_AI_API_TOKEN;
+  const geminiKey = process.env.GEMINI_API_KEY;
+
   if (cfAccountId && cfToken) {
-    return createCloudflareProvider(cfAccountId, cfToken);
+    const cloudflare = createCloudflareProvider(cfAccountId, cfToken);
+    if (geminiKey) {
+      return withTextFallback(cloudflare, createGeminiProvider(geminiKey));
+    }
+    return cloudflare;
   }
 
-  const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     return createGeminiProvider(geminiKey);
   }
