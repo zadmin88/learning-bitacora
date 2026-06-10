@@ -28,6 +28,12 @@ export default defineSchema({
     overallLevel: v.optional(v.string()),
     conceptCount: v.number(),
     processingError: v.optional(v.boolean()),
+    // Explicit term/definition pairs provided by the user at creation.
+    // When present, reprocessing must recreate these instead of running
+    // AI extraction over the content (which would pull words from the definition).
+    userConcepts: v.optional(
+      v.array(v.object({ term: v.string(), definition: v.string() })),
+    ),
     createdAt: v.number(),
   })
     .index("by_user", ["userId"])

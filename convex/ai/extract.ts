@@ -7,6 +7,22 @@ import { EXTRACTION_SYSTEM_PROMPT } from "../lib/prompts";
 import { getProvider } from "../lib/aiProvider";
 
 function extractMockConcepts(content: string) {
+  // Vocabulary-style entry ("term: definition") — extract only the headword,
+  // never words from the definition
+  const vocabMatch = content.trim().match(/^([^:\n]{1,60}):\s*([\s\S]+)$/);
+  if (vocabMatch) {
+    return [
+      {
+        type: "vocabulary",
+        term: vocabMatch[1].trim().toLowerCase(),
+        definition: vocabMatch[2].trim(),
+        context: content.substring(0, 80),
+        tags: ["journal"],
+        difficulty: 3,
+      },
+    ];
+  }
+
   const words = content.split(/\s+/).filter((w) => w.length > 4);
   const concepts = [];
 

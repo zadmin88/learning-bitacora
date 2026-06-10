@@ -22,6 +22,8 @@ export const create = mutation({
       source: "text",
       mood: args.mood,
       conceptCount: args.concepts?.length ?? 0,
+      userConcepts:
+        args.concepts && args.concepts.length > 0 ? args.concepts : undefined,
       createdAt: Date.now(),
     });
 
@@ -149,6 +151,8 @@ export const update = mutation({
       patch.praise = undefined;
       patch.overallLevel = undefined;
       patch.conceptCount = 0;
+      // Content no longer matches the original term/definition pairs
+      patch.userConcepts = undefined;
 
       // Delete existing concepts
       const concepts = await ctx.db
@@ -228,12 +232,36 @@ export const reprocess = mutation({
       await ctx.db.delete(embedding._id);
     }
 
-    // Re-trigger AI processing
-    await ctx.scheduler.runAfter(0, internal.ai.extract.processEntry, {
-      entryId: args.entryId,
-      userId: user._id,
-      content: entry.content,
-    });
+    if (entry.userConcepts && entry.userConcepts.length > 0) {
+      // Entry was created with explicit term/definition pairs — recreate
+      // them directly instead of running AI extraction over the content
+      for (const concept of entry.userConcepts) {
+        await ctx.scheduler.runAfter(
+          0,
+          internal.concepts.createFromExtraction,
+          {
+            userId: user._id,
+            entryId: args.entryId,
+            type: "vocabulary",
+            term: concept.term,
+            definition: concept.definition,
+            context: `${concept.term}: ${concept.definition}`,
+            tags: [],
+            difficulty: 3,
+          },
+        );
+      }
+      await ctx.db.patch(args.entryId, {
+        conceptCount: entry.userConcepts.length,
+      });
+    } else {
+      // Re-trigger AI extraction
+      await ctx.scheduler.runAfter(0, internal.ai.extract.processEntry, {
+        entryId: args.entryId,
+        userId: user._id,
+        content: entry.content,
+      });
+    }
     await ctx.scheduler.runAfter(0, internal.ai.correct.checkEntry, {
       entryId: args.entryId,
       content: entry.content,
