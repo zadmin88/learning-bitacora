@@ -100,57 +100,58 @@ function createGeminiProvider(apiKey: string): AIProvider {
   };
 }
 
-// Wraps a primary provider with a fallback for text generation when the
-// primary's quota is exhausted (429). Embeddings never fall back: vectors
-// from different models are not comparable, so mixing them in the same
-// vector index would corrupt semantic search.
-function withTextFallback(
-  primary: AIProvider,
-  fallback: AIProvider
+// Combines a primary text provider (with fallback on 429) and a separate
+// embedding provider. Embeddings never fall back between providers: vectors
+// from different models aren't comparable, and the schema's vector index is
+// fixed at EMBEDDING_DIMENSIONS — mixing models would corrupt semantic search.
+function combineProviders(
+  text: AIProvider,
+  textFallback: AIProvider | null,
+  embeddings: AIProvider
 ): AIProvider {
   return {
-    embeddingDimensions: primary.embeddingDimensions,
+    embeddingDimensions: embeddings.embeddingDimensions,
 
     async generateText(systemPrompt: string, userPrompt: string) {
       try {
-        return await primary.generateText(systemPrompt, userPrompt);
+        return await text.generateText(systemPrompt, userPrompt);
       } catch (error: unknown) {
-        if ((error as { status?: number })?.status === 429) {
+        if ((error as { status?: number })?.status === 429 && textFallback) {
           console.warn(
-            "Primary AI provider quota exceeded (429) — falling back to Gemini for text generation"
+            "Primary AI provider quota exceeded (429) — falling back for text generation"
           );
-          return await fallback.generateText(systemPrompt, userPrompt);
+          return await textFallback.generateText(systemPrompt, userPrompt);
         }
         throw error;
       }
     },
 
     async generateEmbedding(text: string) {
-      return await primary.generateEmbedding(text);
+      return await embeddings.generateEmbedding(text);
     },
   };
 }
 
-// Returns the active provider based on env vars, or null for mock mode
-// Priority: Cloudflare (free) > Gemini > null (mock)
+// Returns the active provider based on env vars, or null for mock mode.
+// Text generation prefers Gemini (generous free tier, fast), falling back to
+// Cloudflare on quota errors. Embeddings stay on Cloudflare (768 dims,
+// matches the schema's vector index) until a migration changes that.
 export function getProvider(): AIProvider | null {
   const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const cfToken = process.env.CLOUDFLARE_AI_API_TOKEN;
   const geminiKey = process.env.GEMINI_API_KEY;
 
-  if (cfAccountId && cfToken) {
-    const cloudflare = createCloudflareProvider(cfAccountId, cfToken);
-    if (geminiKey) {
-      return withTextFallback(cloudflare, createGeminiProvider(geminiKey));
-    }
-    return cloudflare;
-  }
+  const cloudflare =
+    cfAccountId && cfToken ? createCloudflareProvider(cfAccountId, cfToken) : null;
+  const gemini = geminiKey ? createGeminiProvider(geminiKey) : null;
 
-  if (geminiKey) {
-    return createGeminiProvider(geminiKey);
+  if (gemini && cloudflare) {
+    return combineProviders(gemini, cloudflare, cloudflare);
   }
-
-  return null;
+  if (gemini) {
+    return gemini;
+  }
+  return cloudflare;
 }
 
 export const EMBEDDING_DIMENSIONS = 768;
