@@ -75,6 +75,30 @@ export const invalidateCachedChallenge = internalMutation({
   },
 });
 
+// One-off cleanup: delete cached challenges that came from the mock/fallback
+// generator (cached before fallbacks were excluded from the cache).
+// Run with: npx convex run challengeHelpers:clearFallbackChallenges
+export const clearFallbackChallenges = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const fallbackMarkers = [
+      "is a concept you found in your learning journal",
+      "was found in your journal entry",
+      'We use "was" with "I" in past continuous',
+      'we use "doesn\'t" instead of "don\'t"',
+    ];
+    const cached = await ctx.db.query("challengeCache").take(1000);
+    let deleted = 0;
+    for (const c of cached) {
+      if (fallbackMarkers.some((m) => c.explanation.includes(m))) {
+        await ctx.db.delete(c._id);
+        deleted++;
+      }
+    }
+    return { deleted };
+  },
+});
+
 export const cacheChallenge = internalMutation({
   args: {
     conceptId: v.id("concepts"),

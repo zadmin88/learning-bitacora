@@ -149,25 +149,21 @@ Difficulty: ${concept.difficulty}/5`;
       } catch {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          challenge = JSON.parse(jsonMatch[0]);
-        } else {
-          challenge = {
-            question: `What does "${concept.term}" mean?`,
-            hint: concept.context,
-            answer: concept.definition || concept.term,
-            explanation: `"${concept.term}" was found in your journal entry.`,
-            questionEs: `¿Qué significa "${concept.term}"?`,
-            hintEs: concept.context,
-            explanationEs: `"${concept.term}" fue encontrado en tu entrada de diario.`,
-          };
+          try {
+            challenge = JSON.parse(jsonMatch[0]);
+          } catch {}
         }
       }
     }
   }
 
+  // Fallback challenges (quota exceeded, parse failure, or no provider).
+  // These are placeholders — never cache them, so a real challenge is
+  // generated on the next attempt once the AI is available again.
+  let isFallback = false;
   if (!challenge) {
-    // Mock mode
-    console.log("No AI provider configured — using mock challenge");
+    isFallback = true;
+    console.log("AI challenge unavailable — using fallback challenge");
     if (challengeType === "fill_gap") {
       challenge = {
         question: `Complete the sentence: "I ___ learning about ${concept.term} today."`,
@@ -188,14 +184,27 @@ Difficulty: ${concept.difficulty}/5`;
         hintEs: "Fíjate en la conjugación del verbo.",
         explanationEs: `Con "she/he/it" usamos "doesn't" en lugar de "don't".`,
       };
+    } else if (concept.definition && concept.definition !== concept.term) {
+      // free_recall: give the definition, ask for the term — without
+      // revealing the answer in the question or hint
+      const letterHint = `It starts with "${concept.term[0]}" and has ${concept.term.length} letters.`;
+      challenge = {
+        question: `"${concept.definition}" — What is the English word or phrase for this?`,
+        hint: letterHint,
+        answer: concept.term,
+        explanation: `"${concept.term}" means: ${concept.definition}`,
+        questionEs: `"${concept.definition}" — ¿Cuál es la palabra o frase en inglés para esto?`,
+        hintEs: `Empieza con "${concept.term[0]}" y tiene ${concept.term.length} letras.`,
+        explanationEs: `"${concept.term}" significa: ${concept.definition}`,
+      };
     } else {
       challenge = {
         question: `What does "${concept.term}" mean and how would you use it in a sentence?`,
-        hint: concept.context?.substring(0, 80) || "Think about the context where you learned it.",
+        hint: "Think about the context where you learned it.",
         answer: concept.definition || concept.term,
         explanation: `"${concept.term}" is a concept you found in your learning journal.`,
         questionEs: `¿Qué significa "${concept.term}" y cómo lo usarías en una oración?`,
-        hintEs: concept.context?.substring(0, 80) || "Piensa en el contexto donde lo aprendiste.",
+        hintEs: "Piensa en el contexto donde lo aprendiste.",
         explanationEs: `"${concept.term}" es un concepto que encontraste en tu diario de aprendizaje.`,
       };
     }
@@ -203,19 +212,21 @@ Difficulty: ${concept.difficulty}/5`;
 
   if (!challenge) throw new Error("Challenge generation failed");
 
-  // Cache the result
-  await ctx.runMutation(internal.challengeHelpers.cacheChallenge, {
-    conceptId,
-    challengeType,
-    challengeLevel,
-    question: challenge.question,
-    hint: challenge.hint,
-    answer: challenge.answer,
-    explanation: challenge.explanation,
-    questionEs: challenge.questionEs,
-    hintEs: challenge.hintEs,
-    explanationEs: challenge.explanationEs,
-  });
+  // Cache only real AI-generated challenges — fallbacks must be regenerated
+  if (!isFallback) {
+    await ctx.runMutation(internal.challengeHelpers.cacheChallenge, {
+      conceptId,
+      challengeType,
+      challengeLevel,
+      question: challenge.question,
+      hint: challenge.hint,
+      answer: challenge.answer,
+      explanation: challenge.explanation,
+      questionEs: challenge.questionEs,
+      hintEs: challenge.hintEs,
+      explanationEs: challenge.explanationEs,
+    });
+  }
 
   return {
     ...challenge,

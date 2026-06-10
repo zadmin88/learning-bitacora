@@ -17,7 +17,9 @@
       "Bash(grep -E \"\\\\.\\(ts|js|json\\)$\")",
       "Bash(ls -la /c/Users/big_h/Documents/Web-Development/Nextjs/learning-bitacora/src/app/\\\\\\(dashboard\\\\\\)/)",
       "Bash(npx next:*)",
-      "PowerShell(npx tsc --noEmit 2>$null; \"exit: $LASTEXITCODE\")"
+      "PowerShell(npx tsc --noEmit 2>$null; \"exit: $LASTEXITCODE\")",
+      "PowerShell(npx convex data challengeCache --prod --limit 20)",
+      "PowerShell(npx convex deploy -y; \"deploy exit: $LASTEXITCODE\")"
     ]
   }
 }
