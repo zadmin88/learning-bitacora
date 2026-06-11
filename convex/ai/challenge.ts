@@ -33,16 +33,32 @@ const LEVEL_INSTRUCTIONS: Record<string, string> = {
 async function doGenerateChallenge(
   ctx: ActionCtx,
   conceptId: Id<"concepts">,
-  challengeLevel: string
+  challengeLevel: string,
 ): Promise<ChallengeResult> {
-  type ConceptDoc = { _id: Id<"concepts">; type: string; term: string; definition?: string; context?: string; difficulty?: number };
-  type CachedDoc = { generatedAt: number; challengeType: string; question: string; hint?: string; answer: string; explanation: string; questionEs?: string; hintEs?: string; explanationEs?: string } | null;
+  type ConceptDoc = {
+    _id: Id<"concepts">;
+    type: string;
+    term: string;
+    definition?: string;
+    context?: string;
+    difficulty?: number;
+  };
+  type CachedDoc = {
+    generatedAt: number;
+    challengeType: string;
+    question: string;
+    hint?: string;
+    answer: string;
+    explanation: string;
+    questionEs?: string;
+    hintEs?: string;
+    explanationEs?: string;
+  } | null;
 
   // Load concept
-  const concept = await ctx.runQuery(
-    internal.challengeHelpers.getConcept,
-    { conceptId }
-  ) as ConceptDoc | null;
+  const concept = (await ctx.runQuery(internal.challengeHelpers.getConcept, {
+    conceptId,
+  })) as ConceptDoc | null;
   if (!concept) throw new Error("Concept not found");
 
   // Determine challenge type and check cache
@@ -51,21 +67,23 @@ async function doGenerateChallenge(
 
   if (concept.type === "error") {
     challengeType = "error_correction";
-    cached = await ctx.runQuery(
-      internal.challengeHelpers.getCachedChallenge,
-      { conceptId, challengeType, challengeLevel }
-    );
+    cached = await ctx.runQuery(internal.challengeHelpers.getCachedChallenge, {
+      conceptId,
+      challengeType,
+      challengeLevel,
+    });
   } else if (concept.type === "grammar") {
     challengeType = "free_recall";
-    cached = await ctx.runQuery(
-      internal.challengeHelpers.getCachedChallenge,
-      { conceptId, challengeType, challengeLevel }
-    );
+    cached = await ctx.runQuery(internal.challengeHelpers.getCachedChallenge, {
+      conceptId,
+      challengeType,
+      challengeLevel,
+    });
   } else {
     // Vocabulary: check for ANY cached challenge first (regardless of type)
     cached = await ctx.runQuery(
       internal.challengeHelpers.getAnyCachedChallenge,
-      { conceptId, challengeLevel }
+      { conceptId, challengeLevel },
     );
     if (cached && Date.now() - cached.generatedAt < CACHE_TTL) {
       challengeType = cached.challengeType;
@@ -91,15 +109,17 @@ async function doGenerateChallenge(
   }
 
   // Generate new challenge
-  let challenge: {
-    question: string;
-    hint?: string;
-    answer: string;
-    explanation: string;
-    questionEs?: string;
-    hintEs?: string;
-    explanationEs?: string;
-  } | undefined = undefined;
+  let challenge:
+    | {
+        question: string;
+        hint?: string;
+        answer: string;
+        explanation: string;
+        questionEs?: string;
+        hintEs?: string;
+        explanationEs?: string;
+      }
+    | undefined = undefined;
 
   const provider = getProvider();
   if (provider) {
@@ -254,11 +274,11 @@ export const preGenerateForEntry = internalAction({
   handler: async (ctx, args) => {
     const challengeLevel: string = await ctx.runQuery(
       internal.challengeHelpers.getUserChallengeLevel,
-      { userId: args.userId }
+      { userId: args.userId },
     );
     const concepts = await ctx.runQuery(
       internal.challengeHelpers.getConceptsByEntry,
-      { entryId: args.entryId }
+      { entryId: args.entryId },
     );
 
     for (const concept of concepts) {
@@ -267,7 +287,7 @@ export const preGenerateForEntry = internalAction({
       } catch (error) {
         console.error(
           `Pre-generation failed for concept ${concept._id}:`,
-          error
+          error,
         );
       }
     }

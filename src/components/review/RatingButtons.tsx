@@ -39,7 +39,7 @@ const ratingConfig = [
 export function RatingButtons({ onRate, disabled, cardState }: RatingButtonsProps) {
   const intervals = useMemo(() => {
     if (!cardState) return null;
-    const f = fsrs();
+    const f = fsrs({ request_retention: 0.95 });
     const now = new Date();
     const card = {
       due: new Date(cardState.due),
