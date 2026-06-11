@@ -105,16 +105,22 @@ export function ReviewSession() {
       correct: prev.correct + (correct ? 1 : 0),
       incorrect: prev.incorrect + (correct ? 0 : 1),
     }));
+
+    // "No lo sabía" implies the lowest rating, so submit it directly
+    // instead of also asking how well it was recalled.
+    if (!correct) {
+      handleRate(1, false);
+    }
   };
 
-  const handleRate = async (rating: number) => {
+  const handleRate = async (rating: number, correctOverride?: boolean) => {
     if (!currentConcept || !challenge) return;
 
     await submitReview({
       conceptId: currentConcept._id,
       rating,
       challengeType: challenge.challengeType,
-      wasCorrect: wasCorrect ?? false,
+      wasCorrect: correctOverride ?? wasCorrect ?? false,
     });
 
     const nextIndex = currentIndex + 1;
@@ -232,8 +238,9 @@ export function ReviewSession() {
         </>
       ) : null}
 
-      {/* Rating buttons (show after answer) */}
-      {wasCorrect !== null && (
+      {/* Rating buttons (only shown when the answer was correct, so the
+          user can fine-tune how well they recalled it) */}
+      {wasCorrect === true && (
         <div className="animate-fade-in">
           <p className="text-sm text-muted-foreground mb-2 text-center">
             ¿Qué tan bien lo recordaste?
