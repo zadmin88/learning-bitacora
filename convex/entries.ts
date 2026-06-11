@@ -4,13 +4,56 @@ import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 import { getAuthUser } from "./lib/utils";
 
+// A term/definition pair provided explicitly by the user at entry creation.
+// Grammar/structure concepts additionally carry a `pattern` and `examples`.
+type UserConcept = {
+  term: string;
+  definition: string;
+  kind?: string;
+  pattern?: string;
+  examples?: string[];
+};
+
+// Map a user-provided concept to the arguments for concepts.createFromExtraction.
+// Grammar concepts become type "grammar" (carrying pattern/examples and an
+// example-derived context); everything else stays plain "vocabulary".
+function conceptToExtractionArgs(
+  c: UserConcept,
+  userId: Id<"users">,
+  entryId: Id<"entries">,
+) {
+  const isGrammar = c.kind === "grammar";
+  return {
+    userId,
+    entryId,
+    type: isGrammar ? "grammar" : "vocabulary",
+    term: c.term,
+    definition: c.definition,
+    context: isGrammar
+      ? c.examples?.[0] || c.pattern || `${c.term}: ${c.definition}`
+      : `${c.term}: ${c.definition}`,
+    pattern: isGrammar ? c.pattern : undefined,
+    examples: isGrammar ? c.examples : undefined,
+    tags: [],
+    difficulty: 3,
+  };
+}
+
 export const create = mutation({
   args: {
     content: v.string(),
     language: v.optional(v.string()),
     mood: v.optional(v.string()),
     concepts: v.optional(
-      v.array(v.object({ term: v.string(), definition: v.string() })),
+      v.array(
+        v.object({
+          term: v.string(),
+          definition: v.string(),
+          kind: v.optional(v.string()),
+          pattern: v.optional(v.string()),
+          examples: v.optional(v.array(v.string())),
+        }),
+      ),
     ),
   },
   handler: async (ctx, args) => {
@@ -33,16 +76,7 @@ export const create = mutation({
         await ctx.scheduler.runAfter(
           0,
           internal.concepts.createFromExtraction,
-          {
-            userId: user._id,
-            entryId,
-            type: "vocabulary",
-            term: concept.term,
-            definition: concept.definition,
-            context: `${concept.term}: ${concept.definition}`,
-            tags: [],
-            difficulty: 3,
-          },
+          conceptToExtractionArgs(concept, user._id, entryId),
         );
       }
     } else {
@@ -243,16 +277,7 @@ export const reprocess = mutation({
         await ctx.scheduler.runAfter(
           0,
           internal.concepts.createFromExtraction,
-          {
-            userId: user._id,
-            entryId: args.entryId,
-            type: "vocabulary",
-            term: concept.term,
-            definition: concept.definition,
-            context: `${concept.term}: ${concept.definition}`,
-            tags: [],
-            difficulty: 3,
-          },
+          conceptToExtractionArgs(concept, user._id, args.entryId),
         );
       }
       await ctx.db.patch(args.entryId, {

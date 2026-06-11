@@ -10,6 +10,8 @@ export const createFromExtraction = internalMutation({
     term: v.string(),
     definition: v.string(),
     context: v.string(),
+    pattern: v.optional(v.string()),
+    examples: v.optional(v.array(v.string())),
     tags: v.array(v.string()),
     difficulty: v.number(),
   },
@@ -21,6 +23,8 @@ export const createFromExtraction = internalMutation({
       term: args.term,
       definition: args.definition,
       context: args.context,
+      pattern: args.pattern,
+      examples: args.examples,
       tags: args.tags,
       difficulty: args.difficulty,
       // Initial FSRS state (new card)

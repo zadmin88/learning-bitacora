@@ -20,6 +20,9 @@ interface ChallengeData {
   explanation: string;
   challengeType: string;
   conceptId?: any;
+  options?: string[];
+  optionsEs?: string[];
+  correctIndex?: number;
   questionEs?: string;
   hintEs?: string;
   explanationEs?: string;

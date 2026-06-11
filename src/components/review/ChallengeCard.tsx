@@ -23,6 +23,9 @@ interface Challenge {
   answer: string;
   explanation: string;
   challengeType: string;
+  options?: string[];
+  optionsEs?: string[];
+  correctIndex?: number;
   questionEs?: string;
   hintEs?: string;
   explanationEs?: string;
@@ -47,6 +50,14 @@ export function ChallengeCard({
   const [showHint, setShowHint] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [showSpanish, setShowSpanish] = useState(defaultShowSpanish);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  // A "contrast" grammar drill renders as multiple choice when the AI
+  // supplied options; otherwise it degrades to the standard text flow.
+  const isMcq =
+    challenge.challengeType === "contrast" &&
+    Array.isArray(challenge.options) &&
+    challenge.options.length > 0;
 
   // Add concept state
   const [showAddConcept, setShowAddConcept] = useState(false);
@@ -93,12 +104,19 @@ export function ChallengeCard({
     }
   };
 
-  const typeLabel =
-    challenge.challengeType === "fill_gap"
-      ? "Completar el Espacio"
-      : challenge.challengeType === "free_recall"
-        ? "Recuerdo Libre"
-        : "Corrección de Errores";
+  const handleSelectOption = (index: number) => {
+    setSelectedIndex(index);
+    setRevealed(true);
+  };
+
+  const TYPE_LABELS: Record<string, string> = {
+    fill_gap: "Completar el Espacio",
+    free_recall: "Recuerdo Libre",
+    error_correction: "Corrección de Errores",
+    transform: "Transforma la Oración",
+    contrast: "Elige la Correcta",
+  };
+  const typeLabel = TYPE_LABELS[challenge.challengeType] ?? "Reto";
 
   const hasSpanish = !!(challenge.questionEs || challenge.hintEs || challenge.explanationEs);
 
@@ -174,8 +192,70 @@ export function ChallengeCard({
             </div>
           )}
 
+          {/* Multiple-choice (contrast grammar drill) */}
+          {isMcq && (
+            <div className="space-y-2">
+              {challenge.options!.map((option, i) => {
+                const isCorrect = i === challenge.correctIndex;
+                const isSelected = i === selectedIndex;
+                let stateClasses =
+                  "border-input hover:bg-muted hover:border-primary/40";
+                if (revealed) {
+                  if (isCorrect) {
+                    stateClasses =
+                      "bg-emerald/10 border-emerald/40 text-emerald-dark";
+                  } else if (isSelected) {
+                    stateClasses = "bg-red-50 border-red-300 text-red-700";
+                  } else {
+                    stateClasses = "border-input opacity-60";
+                  }
+                }
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleSelectOption(i)}
+                    disabled={revealed}
+                    className={`w-full text-left p-3 rounded-md border transition-colors disabled:cursor-default ${stateClasses}`}
+                  >
+                    <span className="font-medium mr-2">
+                      {String.fromCharCode(65 + i)}.
+                    </span>
+                    {option}
+                    {showSpanish && challenge.optionsEs?.[i] && (
+                      <span className="block text-xs text-muted-foreground mt-1 ml-6">
+                        {challenge.optionsEs[i]}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Multiple-choice result */}
+          {isMcq && revealed && (
+            <div className="space-y-3 animate-fade-in">
+              <div className="p-3 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground">Explicación:</p>
+                <p className="text-sm">{challenge.explanation}</p>
+                {showSpanish && challenge.explanationEs && (
+                  <p className="text-sm text-muted-foreground mt-2 pt-2 border-t border-muted-foreground/10 animate-fade-in">
+                    {challenge.explanationEs}
+                  </p>
+                )}
+              </div>
+              <Button
+                onClick={() => onAnswer(selectedIndex === challenge.correctIndex)}
+                className="w-full bg-primary hover:bg-blue-dark"
+              >
+                Continuar
+              </Button>
+            </div>
+          )}
+
           {/* Answer input */}
-          {!revealed && (
+          {!isMcq && !revealed && (
             <form onSubmit={handleSubmit} className="space-y-3">
               <Input
                 value={userAnswer}
@@ -205,7 +285,7 @@ export function ChallengeCard({
           )}
 
           {/* Revealed answer */}
-          {revealed && (
+          {!isMcq && revealed && (
             <div className="space-y-3 animate-fade-in">
               {userAnswer && (
                 <div className="p-3 bg-muted rounded-md">

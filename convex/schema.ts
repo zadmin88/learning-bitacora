@@ -31,8 +31,19 @@ export default defineSchema({
     // Explicit term/definition pairs provided by the user at creation.
     // When present, reprocessing must recreate these instead of running
     // AI extraction over the content (which would pull words from the definition).
+    // `kind` distinguishes plain vocabulary from grammar/structure concepts;
+    // grammar concepts carry an optional `pattern` (e.g. "used to + base verb")
+    // and `examples` model sentences.
     userConcepts: v.optional(
-      v.array(v.object({ term: v.string(), definition: v.string() })),
+      v.array(
+        v.object({
+          term: v.string(),
+          definition: v.string(),
+          kind: v.optional(v.string()),
+          pattern: v.optional(v.string()),
+          examples: v.optional(v.array(v.string())),
+        }),
+      ),
     ),
     createdAt: v.number(),
   })
@@ -60,6 +71,11 @@ export default defineSchema({
     term: v.string(),
     definition: v.optional(v.string()),
     context: v.string(),
+    // Grammar/structure concepts: the slot pattern (e.g. "used to + base
+    // verb") and model example sentences used to generate transform/contrast
+    // drills. Empty for plain vocabulary.
+    pattern: v.optional(v.string()),
+    examples: v.optional(v.array(v.string())),
     tags: v.array(v.string()),
     difficulty: v.number(),
     // FSRS state
@@ -102,6 +118,11 @@ export default defineSchema({
     hint: v.optional(v.string()),
     answer: v.string(),
     explanation: v.string(),
+    // Multiple-choice "contrast" grammar drills: answer options plus the
+    // 0-based index of the correct one. Empty for non-MCQ challenge types.
+    options: v.optional(v.array(v.string())),
+    optionsEs: v.optional(v.array(v.string())),
+    correctIndex: v.optional(v.number()),
     questionEs: v.optional(v.string()),
     hintEs: v.optional(v.string()),
     explanationEs: v.optional(v.string()),

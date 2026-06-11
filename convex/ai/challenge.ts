@@ -4,7 +4,10 @@ import { ActionCtx } from "../_generated/server";
 import { action, internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
-import { CHALLENGE_SYSTEM_PROMPT } from "../lib/prompts";
+import {
+  CHALLENGE_SYSTEM_PROMPT,
+  GRAMMAR_CHALLENGE_SYSTEM_PROMPT,
+} from "../lib/prompts";
 import { getProvider } from "../lib/aiProvider";
 import { Id } from "../_generated/dataModel";
 
@@ -15,6 +18,9 @@ type ChallengeResult = {
   explanation: string;
   challengeType: string;
   conceptId: string;
+  options?: string[];
+  optionsEs?: string[];
+  correctIndex?: number;
   questionEs?: string;
   hintEs?: string;
   explanationEs?: string;
@@ -41,6 +47,8 @@ async function doGenerateChallenge(
     term: string;
     definition?: string;
     context?: string;
+    pattern?: string;
+    examples?: string[];
     difficulty?: number;
   };
   type CachedDoc = {
@@ -50,6 +58,9 @@ async function doGenerateChallenge(
     hint?: string;
     answer: string;
     explanation: string;
+    options?: string[];
+    optionsEs?: string[];
+    correctIndex?: number;
     questionEs?: string;
     hintEs?: string;
     explanationEs?: string;
@@ -73,12 +84,20 @@ async function doGenerateChallenge(
       challengeLevel,
     });
   } else if (concept.type === "grammar") {
-    challengeType = "free_recall";
-    cached = await ctx.runQuery(internal.challengeHelpers.getCachedChallenge, {
-      conceptId,
-      challengeType,
-      challengeLevel,
-    });
+    // Reuse ANY cached grammar challenge (transform/contrast — or a legacy
+    // free_recall) so we don't regenerate a different drill on every visit.
+    cached = await ctx.runQuery(
+      internal.challengeHelpers.getAnyCachedChallenge,
+      { conceptId, challengeLevel },
+    );
+    if (cached && Date.now() - cached.generatedAt < CACHE_TTL) {
+      challengeType = cached.challengeType;
+    } else {
+      cached = null;
+      const grammarTypes = ["transform", "contrast"];
+      challengeType =
+        grammarTypes[Math.floor(Math.random() * grammarTypes.length)];
+    }
   } else {
     // Vocabulary: check for ANY cached challenge first (regardless of type)
     cached = await ctx.runQuery(
@@ -102,6 +121,9 @@ async function doGenerateChallenge(
       explanation: cached.explanation,
       challengeType: cached.challengeType,
       conceptId,
+      options: cached.options,
+      optionsEs: cached.optionsEs,
+      correctIndex: cached.correctIndex,
       questionEs: cached.questionEs,
       hintEs: cached.hintEs,
       explanationEs: cached.explanationEs,
@@ -115,19 +137,41 @@ async function doGenerateChallenge(
         hint?: string;
         answer: string;
         explanation: string;
+        options?: string[];
+        optionsEs?: string[];
+        correctIndex?: number;
         questionEs?: string;
         hintEs?: string;
         explanationEs?: string;
       }
     | undefined = undefined;
 
+  const isGrammarDrill =
+    concept.type === "grammar" &&
+    (challengeType === "transform" || challengeType === "contrast");
+
   const provider = getProvider();
   if (provider) {
     const levelInstruction = LEVEL_INSTRUCTIONS[challengeLevel] || "";
 
-    // Build user prompt — vocabulary free_recall needs special instructions
+    // Grammar transform/contrast drills use a dedicated system prompt that
+    // knows about patterns, examples, and the MCQ options shape.
+    const systemPrompt = isGrammarDrill
+      ? GRAMMAR_CHALLENGE_SYSTEM_PROMPT
+      : CHALLENGE_SYSTEM_PROMPT;
+
+    // Build user prompt — vocabulary free_recall and grammar drills need
+    // special instructions.
     let userPrompt: string;
-    if (challengeType === "free_recall" && concept.type !== "grammar") {
+    if (isGrammarDrill) {
+      userPrompt = `Generate a "${challengeType}" challenge for this GRAMMAR/STRUCTURE concept:
+Name/Rule: ${concept.term}
+Explanation: ${concept.definition || "N/A"}
+Pattern: ${concept.pattern || "N/A"}
+Examples: ${concept.examples?.length ? concept.examples.join(" | ") : "N/A"}
+Original context: "${concept.context}"
+Difficulty: ${concept.difficulty}/5`;
+    } else if (challengeType === "free_recall" && concept.type !== "grammar") {
       userPrompt = `Generate a "free_recall" challenge for this VOCABULARY concept.
 The learner must recall the EXACT term from its definition/description.
 
@@ -153,7 +197,7 @@ Difficulty: ${concept.difficulty}/5`;
 
     let text = "";
     try {
-      text = await provider.generateText(CHALLENGE_SYSTEM_PROMPT, userPrompt);
+      text = await provider.generateText(systemPrompt, userPrompt);
     } catch (aiError: unknown) {
       if ((aiError as { status?: number })?.status === 429) {
         console.warn("AI API quota exceeded (429) — using mock challenge");
@@ -175,6 +219,37 @@ Difficulty: ${concept.difficulty}/5`;
         }
       }
     }
+
+    // Validate a "contrast" MCQ: it needs at least two string options and a
+    // correctIndex pointing at one of them. If the model returned something
+    // malformed, strip the options so it renders as a plain text drill rather
+    // than a broken multiple-choice card.
+    if (challenge && challengeType === "contrast") {
+      const opts = challenge.options;
+      const idx = challenge.correctIndex;
+      const valid =
+        Array.isArray(opts) &&
+        opts.length >= 2 &&
+        opts.every((o) => typeof o === "string" && o.trim().length > 0) &&
+        typeof idx === "number" &&
+        idx >= 0 &&
+        idx < opts.length;
+      if (valid) {
+        // Keep the answer in sync with the correct option text.
+        challenge.answer = opts![idx!];
+        // Drop a mismatched-length Spanish options array.
+        if (
+          !Array.isArray(challenge.optionsEs) ||
+          challenge.optionsEs.length !== opts!.length
+        ) {
+          challenge.optionsEs = undefined;
+        }
+      } else {
+        challenge.options = undefined;
+        challenge.optionsEs = undefined;
+        challenge.correctIndex = undefined;
+      }
+    }
   }
 
   // Fallback challenges (quota exceeded, parse failure, or no provider).
@@ -184,7 +259,24 @@ Difficulty: ${concept.difficulty}/5`;
   if (!challenge) {
     isFallback = true;
     console.log("AI challenge unavailable — using fallback challenge");
-    if (challengeType === "fill_gap") {
+    if (concept.type === "grammar") {
+      // No MCQ options in the fallback — the learner explains/produces and
+      // self-assesses, so it renders through the standard text flow.
+      const example = concept.examples?.[0];
+      challenge = {
+        question: `Apply the structure "${concept.term}" — write your own correct example sentence using it.`,
+        hint: concept.pattern
+          ? `Follow the pattern: ${concept.pattern}`
+          : "Think about when and how this structure is used.",
+        answer: example || concept.definition || concept.term,
+        explanation: `${concept.term}: ${concept.definition || ""}`.trim(),
+        questionEs: `Aplica la estructura "${concept.term}" — escribe tu propia oración de ejemplo usándola.`,
+        hintEs: concept.pattern
+          ? `Sigue la estructura: ${concept.pattern}`
+          : "Piensa en cuándo y cómo se usa esta estructura.",
+        explanationEs: `${concept.term}: ${concept.definition || ""}`.trim(),
+      };
+    } else if (challengeType === "fill_gap") {
       challenge = {
         question: `Complete the sentence: "I ___ learning about ${concept.term} today."`,
         hint: `Think about the context: "${concept.context?.substring(0, 60)}"`,
@@ -242,6 +334,9 @@ Difficulty: ${concept.difficulty}/5`;
       hint: challenge.hint,
       answer: challenge.answer,
       explanation: challenge.explanation,
+      options: challenge.options,
+      optionsEs: challenge.optionsEs,
+      correctIndex: challenge.correctIndex,
       questionEs: challenge.questionEs,
       hintEs: challenge.hintEs,
       explanationEs: challenge.explanationEs,

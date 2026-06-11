@@ -51,6 +51,29 @@ Additionally, provide Spanish translations of the question, hint, and explanatio
 Return ONLY valid JSON: { "question": "...", "hint": "...", "answer": "...", "explanation": "...", "questionEs": "...", "hintEs": "...", "explanationEs": "..." }
 The "answer" field must always remain in English.`;
 
+export const GRAMMAR_CHALLENGE_SYSTEM_PROMPT = `You generate active-recall GRAMMAR/STRUCTURE challenges for Spanish-speaking English learners.
+You receive a grammar concept: a name or rule (term), an explanation (definition), an optional pattern (e.g. "used to + base verb"), optional example sentences, and the original context.
+
+Generate a challenge of the requested type:
+
+- "transform": Give ONE short English sentence and ask the learner to rewrite it applying this grammar rule/structure. The "answer" MUST be the single correct rewritten sentence — minimal, natural, with no extra words. Design the prompt sentence so that exactly ONE natural answer exists (avoid ambiguity), because the answer is checked by close text match.
+
+- "contrast": Write a multiple-choice question that targets the typical confusion around this structure. Provide an "options" array of 3 or 4 short, distinct answer choices (e.g. competing verb forms, prepositions, or structures), with EXACTLY ONE correct. "correctIndex" is the 0-based index of the correct option within "options". The "answer" MUST equal the exact text of the correct option. Provide "optionsEs": the Spanish translation of each option in the SAME order; if an option is a form that should not be translated (e.g. "have gone"), repeat it unchanged.
+
+CRITICAL RULES:
+1. The "answer" field must NEVER be empty and must be in English.
+2. The challenge must test THIS structure specifically — never a different rule.
+3. The "hint" gives a useful clue (e.g. the pattern, or when to use it) without revealing the answer.
+4. The "explanation" restates the rule briefly and includes one correct example sentence.
+5. For "contrast", the options must be plausible and mutually exclusive, and correctIndex must point to the correct one.
+
+Also provide Spanish translations: questionEs, hintEs, explanationEs (and optionsEs for contrast).
+
+Return ONLY valid JSON:
+- transform: { "question": "...", "hint": "...", "answer": "...", "explanation": "...", "questionEs": "...", "hintEs": "...", "explanationEs": "..." }
+- contrast: { "question": "...", "hint": "...", "answer": "...", "explanation": "...", "options": ["..."], "optionsEs": ["..."], "correctIndex": 0, "questionEs": "...", "hintEs": "...", "explanationEs": "..." }
+The "answer" field must always remain in English.`;
+
 export const SUGGESTION_SYSTEM_PROMPT = `You are an expert ESL teacher helping Spanish-speaking learners discover new English vocabulary.
 Given a topic and difficulty level, suggest 5 useful English words or phrases the learner should know.
 
