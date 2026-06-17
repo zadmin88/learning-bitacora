@@ -33,7 +33,7 @@ const ratingConfig = [
   { value: 1, label: "Otra vez", color: "bg-red-500 hover:bg-red-600", grade: Rating.Again },
   { value: 2, label: "Difícil", color: "bg-orange-500 hover:bg-orange-600", grade: Rating.Hard },
   { value: 3, label: "Bien", color: "bg-emerald hover:bg-emerald-dark", grade: Rating.Good },
-  { value: 4, label: "Fácil", color: "bg-blue-500 hover:bg-blue-600", grade: Rating.Easy },
+  { value: 4, label: "Fácil", color: "bg-violet-600 hover:bg-violet-700", grade: Rating.Easy },
 ];
 
 export function RatingButtons({ onRate, disabled, cardState }: RatingButtonsProps) {

@@ -47,7 +47,7 @@ export default function LandingPage() {
       </header>
 
       {/* Features */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24 bg-card">
         <div className="max-w-5xl mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-12">
             Cómo funciona
@@ -59,7 +59,7 @@ export default function LandingPage() {
               description="Escribe en tu diario sobre lo que estás aprendiendo en inglés. Escribe libremente — no hay respuesta incorrecta."
             />
             <FeatureCard
-              icon={<Sparkles className="h-8 w-8 text-emerald" />}
+              icon={<Sparkles className="h-8 w-8 text-highlight" />}
               title="Extrae"
               description="La IA analiza tu escritura, extrae vocabulario, gramática y modismos, y corrige cualquier error."
             />
@@ -89,7 +89,7 @@ export default function LandingPage() {
             ].map((benefit, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 p-4 bg-white rounded-lg shadow-sm"
+                className="flex items-start gap-3 p-4 bg-card rounded-lg shadow-sm"
               >
                 <CheckCircle className="h-5 w-5 text-emerald shrink-0 mt-0.5" />
                 <span className="text-foreground">{benefit}</span>
@@ -100,19 +100,19 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24 bg-foreground text-foreground">
+      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Empieza a construir tu memoria del inglés hoy
           </h2>
-          <p className="text-muted-foreground text-lg mb-8">
+          <p className="text-primary-foreground/80 text-lg mb-8">
             El 70% de lo que aprendes se olvida en 24 horas. Bitácora cambia
             eso.
           </p>
           <Link href="/register">
             <Button
               size="lg"
-              className="bg-primary hover:bg-blue-dark text-lg px-8"
+              className="bg-card text-primary hover:bg-card/90 text-lg px-8"
             >
               Crear Cuenta Gratis
               <ArrowRight className="ml-2 h-5 w-5" />

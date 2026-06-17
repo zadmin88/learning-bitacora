@@ -45,7 +45,7 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
       label: "Repasos Totales",
       value: stats.totalReviews,
       icon: Target,
-      color: "text-blue-500",
+      color: "text-highlight",
     },
     {
       label: "Precisión",
