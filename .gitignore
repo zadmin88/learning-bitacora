@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# writing coach — local secrets / state for the capture hook
+.claude/.coach-env
+.claude/.coach-last

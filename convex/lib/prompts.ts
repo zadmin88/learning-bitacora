@@ -98,6 +98,38 @@ IMPORTANT: Do NOT suggest any words from this exclusion list (the learner alread
 
 Return ONLY a valid JSON array. No markdown, no explanation.`;
 
+export const WRITING_ANALYSIS_PROMPT = `IMPORTANT: Respond with ONLY valid JSON. No thinking, no reasoning, no explanation, no markdown. Your entire response must start with { and end with }.
+
+You are an expert ESL/EFL writing coach analyzing a batch of writing samples from a Spanish-speaking English learner. Each sample is an object with the learner's "original" text, its "corrected" version, and optional "tips" that were given. The corrections come from the learner's everyday prompts to AI tools, so they reflect how they really write.
+
+Your job: find the RECURRING patterns across ALL samples (not one-off slips) and recommend what to study next.
+
+Analyze and return JSON with exactly this shape:
+{
+  "summary": "2-4 sentences in SPANISH giving a warm, encouraging overview of how the learner is writing and the 1-2 biggest things to work on.",
+  "patterns": [
+    {
+      "category": "short English label for the error type, e.g. 'Verb tenses', 'Prepositions', 'Article usage', 'Word order', 'Subject-verb agreement', 'Spelling'",
+      "description": "1-2 sentences in SPANISH explaining the mistake and how to fix it",
+      "examples": ["up to 3 SHORT English before→after snippets drawn from the samples, e.g. 'I have 20 years → I am 20 years old'"],
+      "frequency": <integer count of how many samples showed this pattern>
+    }
+  ],
+  "studyTopics": [
+    {
+      "topic": "a concise ENGLISH grammar/usage topic name to study, e.g. 'Present perfect vs. simple past'",
+      "why": "1 sentence in ENGLISH explaining the rule and why it matters for this learner"
+    }
+  ]
+}
+
+Rules:
+- Order "patterns" by "frequency" descending. Include only patterns seen in 2+ samples when possible; if data is sparse, include the most instructive ones.
+- Return at most 6 patterns and at most 5 studyTopics.
+- "topic" and "why" MUST be in English (they become study cards). "summary" and pattern "description" MUST be in Spanish.
+- If there are very few or no real errors, say so kindly in "summary" and return short/empty arrays.
+- Return ONLY valid JSON.`;
+
 export const SEARCH_SYSTEM_PROMPT = `You are a helpful learning assistant. The user is searching their personal English learning journal.
 Answer based on the journal entries provided. Reference entries by date. Be warm and encouraging.
 If the user writes in Spanish, respond in Spanish.

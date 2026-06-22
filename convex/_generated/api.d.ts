@@ -9,12 +9,14 @@
  */
 
 import type * as ai_challenge from "../ai/challenge.js";
+import type * as ai_coachAnalysis from "../ai/coachAnalysis.js";
 import type * as ai_correct from "../ai/correct.js";
 import type * as ai_embeddings from "../ai/embeddings.js";
 import type * as ai_extract from "../ai/extract.js";
 import type * as ai_suggest from "../ai/suggest.js";
 import type * as auth from "../auth.js";
 import type * as challengeHelpers from "../challengeHelpers.js";
+import type * as coach from "../coach.js";
 import type * as concepts from "../concepts.js";
 import type * as crons from "../crons.js";
 import type * as embeddingsMutations from "../embeddingsMutations.js";
@@ -39,12 +41,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "ai/challenge": typeof ai_challenge;
+  "ai/coachAnalysis": typeof ai_coachAnalysis;
   "ai/correct": typeof ai_correct;
   "ai/embeddings": typeof ai_embeddings;
   "ai/extract": typeof ai_extract;
   "ai/suggest": typeof ai_suggest;
   auth: typeof auth;
   challengeHelpers: typeof challengeHelpers;
+  coach: typeof coach;
   concepts: typeof concepts;
   crons: typeof crons;
   embeddingsMutations: typeof embeddingsMutations;

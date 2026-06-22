@@ -12,6 +12,7 @@ import {
   Lightbulb,
   BarChart3,
   Settings,
+  GraduationCap,
   X,
 } from "lucide-react";
 import { useQuery } from "convex/react";
@@ -27,6 +28,7 @@ const mainItems = [
 const moreItems = [
   { href: "/explore", label: "Explorar", icon: Search },
   { href: "/discover", label: "Descubrir", icon: Lightbulb },
+  { href: "/coach", label: "Escritura", icon: GraduationCap },
   { href: "/progress", label: "Progreso", icon: BarChart3 },
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];

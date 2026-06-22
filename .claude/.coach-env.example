@@ -1,0 +1,9 @@
+# Writing Coach — local config for the Claude Code capture hook.
+# Copy this file to ".coach-env" (same folder) and fill in your values.
+# The real .coach-env is gitignored so your key is never committed.
+#
+# Get both values from the app: open Ajustes → "Entrenador de Escritura",
+# copy the ingestion URL, then generate and copy your key.
+
+COACH_INGEST_URL=https://YOUR-DEPLOYMENT.convex.site/coach/ingest
+COACH_API_KEY=coach_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

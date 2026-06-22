@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LogOut, User, GraduationCap, Languages, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
+import { IngestKeyCard } from "@/components/coach/IngestKeyCard";
 
 const LEVELS = [
   { value: "beginner", label: "Principiante" },
@@ -161,6 +162,8 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        <IngestKeyCard />
 
         <Card>
           <CardContent className="pt-6">

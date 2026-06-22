@@ -12,6 +12,7 @@ import {
   LogOut,
   Flame,
   Lightbulb,
+  GraduationCap,
 } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/review", label: "Repasar", icon: Brain },
   { href: "/explore", label: "Explorar", icon: Search },
   { href: "/discover", label: "Descubrir", icon: Lightbulb },
+  { href: "/coach", label: "Escritura", icon: GraduationCap },
   { href: "/progress", label: "Progreso", icon: BarChart3 },
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];

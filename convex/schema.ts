@@ -109,6 +109,55 @@ export default defineSchema({
     .index("by_user_date", ["userId", "createdAt"])
     .index("by_concept", ["conceptId"]),
 
+  // ─── Writing Coach: captured prompt↔correction samples ───
+  // Ingested from outside the browser (Claude Code Stop hook, MCP clients) via
+  // the /coach/ingest HTTP endpoint, authed by a per-user ingest key.
+  writingSamples: defineTable({
+    userId: v.id("users"),
+    source: v.string(), // "claude-code" | "claude-desktop" | "cursor" | "mcp" | ...
+    original: v.string(), // the user's prompt text
+    corrected: v.optional(v.string()), // correction (from capture, or generated later)
+    tips: v.optional(v.array(v.string())),
+    errorTags: v.optional(v.array(v.string())), // reserved for future per-sample tagging
+    analyzed: v.boolean(), // included in a writing review yet?
+    reviewId: v.optional(v.id("writingReviews")),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_date", ["userId", "createdAt"])
+    .index("by_user_analyzed", ["userId", "analyzed"]),
+
+  // ─── Writing Coach: weekly analysis results ───
+  writingReviews: defineTable({
+    userId: v.id("users"),
+    periodStart: v.number(),
+    periodEnd: v.number(),
+    sampleCount: v.number(),
+    summary: v.string(),
+    patterns: v.array(
+      v.object({
+        category: v.string(), // e.g. "verb tenses", "prepositions"
+        description: v.string(),
+        examples: v.array(v.string()),
+        frequency: v.number(),
+      }),
+    ),
+    studyTopics: v.array(
+      v.object({ topic: v.string(), why: v.string() }),
+    ),
+    createdAt: v.number(),
+  }).index("by_user_date", ["userId", "createdAt"]),
+
+  // ─── Writing Coach: per-user ingest keys (write-only ingestion auth) ───
+  ingestKeys: defineTable({
+    userId: v.id("users"),
+    key: v.string(),
+    createdAt: v.number(),
+    lastUsedAt: v.optional(v.number()),
+  })
+    .index("by_key", ["key"])
+    .index("by_user", ["userId"]),
+
   // ─── Cached AI Challenges ───
   challengeCache: defineTable({
     conceptId: v.id("concepts"),

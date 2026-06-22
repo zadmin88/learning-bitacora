@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "writing-coach": {
+      "command": "node",
+      "args": ["mcp/writing-coach/server.mjs"],
+      "env": {
+        "COACH_INGEST_URL": "${COACH_INGEST_URL}",
+        "COACH_API_KEY": "${COACH_API_KEY}"
+      }
+    }
+  }
+}
