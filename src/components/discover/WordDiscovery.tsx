@@ -17,6 +17,8 @@ interface Suggestion {
   difficulty: number;
 }
 
+//TODO: Move these to a config file or database for easier management and localization
+
 const TOPICS = [
   { value: "travel", label: "Viajes" },
   { value: "work", label: "Trabajo" },
@@ -91,7 +93,9 @@ export function WordDiscovery() {
           {DIFFICULTIES.map((diff) => (
             <Button
               key={diff.value}
-              variant={selectedDifficulty === diff.value ? "default" : "outline"}
+              variant={
+                selectedDifficulty === diff.value ? "default" : "outline"
+              }
               size="sm"
               className={
                 selectedDifficulty === diff.value
