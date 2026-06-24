@@ -43,8 +43,11 @@ function dedup(suggestions: Suggestion[], existingTerms: string[]): Suggestion[]
 }
 
 export const generateSuggestions = action({
-  args: {},
-  handler: async (ctx): Promise<Suggestion[]> => {
+  args: {
+    // Terms already shown in this session, excluded so "more" gives fresh words.
+    excludeTerms: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args): Promise<Suggestion[]> => {
     // Get current user
     const userId: Id<"users"> | null = await ctx.runQuery(
       internal.searchHelpers.getCurrentUserId
@@ -60,11 +63,12 @@ export const generateSuggestions = action({
     // Nothing learned yet — there's nothing to connect new words to.
     if (recent.length === 0) return [];
 
-    // Get existing terms to exclude duplicates
-    const existingTerms: string[] = await ctx.runQuery(
+    // Exclude both saved terms and anything already shown this session.
+    const savedTerms: string[] = await ctx.runQuery(
       internal.suggestions.getUserTerms,
       { userId }
     );
+    const existingTerms: string[] = [...savedTerms, ...(args.excludeTerms ?? [])];
 
     // Auto-calibrate difficulty to the average of recent concepts.
     const avg =

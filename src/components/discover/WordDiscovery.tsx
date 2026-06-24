@@ -22,13 +22,16 @@ export function WordDiscovery() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  // Terms shown earlier this session, so "Sugerir Mas Palabras" never repeats.
+  const [shownTerms, setShownTerms] = useState<string[]>([]);
 
   const handleGenerate = async () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      const result = await generateSuggestions({});
+      const result = await generateSuggestions({ excludeTerms: shownTerms });
       setSuggestions(result);
+      setShownTerms((prev) => [...prev, ...result.map((s) => s.term)]);
     } catch (error) {
       console.error("Error generating suggestions:", error);
     } finally {
@@ -104,11 +107,18 @@ export function WordDiscovery() {
       {!loading && hasSearched && suggestions.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           <Lightbulb className="h-12 w-12 mx-auto mb-4 opacity-30" />
-          <p className="text-sm">
-            Aún no hay sugerencias. Escribe algunas entradas para que la IA
-            aprenda de ti y pueda recomendarte palabras conectadas con lo que
-            estudias.
-          </p>
+          {shownTerms.length > 0 ? (
+            <p className="text-sm">
+              No hay más palabras nuevas por ahora. Aprende algunos conceptos
+              más y vuelve para recibir nuevas sugerencias.
+            </p>
+          ) : (
+            <p className="text-sm">
+              Aún no hay sugerencias. Escribe algunas entradas para que la IA
+              aprenda de ti y pueda recomendarte palabras conectadas con lo que
+              estudias.
+            </p>
+          )}
         </div>
       )}
 
