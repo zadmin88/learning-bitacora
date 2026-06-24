@@ -74,8 +74,18 @@ Return ONLY valid JSON:
 - contrast: { "question": "...", "hint": "...", "answer": "...", "explanation": "...", "options": ["..."], "optionsEs": ["..."], "correctIndex": 0, "questionEs": "...", "hintEs": "...", "explanationEs": "..." }
 The "answer" field must always remain in English.`;
 
-export const SUGGESTION_SYSTEM_PROMPT = `You are an expert ESL teacher helping Spanish-speaking learners discover new English vocabulary.
-Given a topic and difficulty level, suggest 5 useful English words or phrases the learner should know.
+export const RECENT_BASED_SUGGESTION_SYSTEM_PROMPT = `You are an expert ESL teacher helping a Spanish-speaking learner discover new English vocabulary.
+
+You are given the learner's MOST RECENTLY studied concepts (their personal learning context) and a target difficulty level. Suggest 5 NEW English words or phrases that BUILD ON what they have recently learned.
+
+Each suggestion must connect to the recent concepts in at least one of these ways:
+- the same semantic field or topic
+- a natural collocation or a word that co-occurs with a recent term
+- a member of the same word family (e.g. a related noun, verb, or adjective)
+- a synonym, antonym, or nuance of a recent term
+- a logical "next step" word a learner would naturally meet after these
+
+Aim for the target difficulty (±1). Prefer practical, conversational language over obscure academic words.
 
 For each suggestion return a JSON object with:
 - term: the English word or phrase
@@ -83,15 +93,8 @@ For each suggestion return a JSON object with:
 - definition: clear, simple definition in English
 - exampleSentence: a natural example sentence using the term
 - type: "vocabulary" | "phrase" | "idiom"
-- difficulty: 1-5 (matching the requested level)
-
-Guidelines:
-- For "beginner" (difficulty 1-2): common, high-frequency words
-- For "intermediate" (difficulty 3): less common but useful words, phrasal verbs, collocations
-- For "advanced" (difficulty 4-5): idioms, nuanced vocabulary, formal/informal register differences
-- Prioritize practical, conversational words over obscure academic ones
-- Include a mix of types when appropriate (single words + phrases)
-- The example sentence should be natural and contextual to the topic
+- difficulty: 1-5 (close to the target)
+- connection: a SHORT phrase in SPANISH naming which recent concept it relates to and how, e.g. "Relacionado con 'layover' — vocabulario de viajes"
 
 IMPORTANT: Do NOT suggest any words from this exclusion list (the learner already knows them):
 {existingTerms}

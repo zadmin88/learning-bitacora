@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PenLine } from "lucide-react";
+import { PenLine, Sparkles } from "lucide-react";
 
 interface Suggestion {
   term: string;
@@ -13,6 +13,7 @@ interface Suggestion {
   exampleSentence: string;
   type: string;
   difficulty: number;
+  connection?: string;
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -62,9 +63,16 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
         </div>
 
         <p className="text-sm text-foreground mb-2">{suggestion.definition}</p>
-        <p className="text-sm text-muted-foreground italic mb-4">
+        <p className="text-sm text-muted-foreground italic mb-3">
           &ldquo;{suggestion.exampleSentence}&rdquo;
         </p>
+
+        {suggestion.connection && (
+          <p className="flex items-start gap-1.5 text-xs text-primary/80 mb-4">
+            <Sparkles className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span>{suggestion.connection}</span>
+          </p>
+        )}
 
         <Button
           onClick={handleWriteAbout}
