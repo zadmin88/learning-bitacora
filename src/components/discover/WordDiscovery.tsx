@@ -17,8 +17,6 @@ interface Suggestion {
   difficulty: number;
 }
 
-//TODO: Move these to a config file or database for easier management and localization
-
 const TOPICS = [
   { value: "travel", label: "Viajes" },
   { value: "work", label: "Trabajo" },
