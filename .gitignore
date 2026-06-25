@@ -43,3 +43,6 @@ next-env.d.ts
 # writing coach — local secrets / state for the capture hook
 .claude/.coach-env
 .claude/.coach-last
+
+# machine-local Claude Code overrides (permissions etc.) — keep out of the repo
+.claude/settings.local.json

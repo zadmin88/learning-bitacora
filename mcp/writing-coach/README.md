@@ -42,7 +42,7 @@ Add to `claude_desktop_config.json` (Settings → Developer → Edit Config):
   "mcpServers": {
     "writing-coach": {
       "command": "node",
-      "args": ["C:/Users/big_h/Documents/Web-Development/Nextjs/learning-bitacora/mcp/writing-coach/server.mjs"],
+      "args": ["/absolute/path/to/learning-bitacora/mcp/writing-coach/server.mjs"],
       "env": {
         "COACH_INGEST_URL": "https://YOUR-DEPLOYMENT.convex.site/coach/ingest",
         "COACH_API_KEY": "coach_xxxxxxxx"

@@ -1,0 +1,38 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-Command",
+              "$c = 'Standing instruction: Before addressing the request below, first review the most recent user message for English grammar, spelling, and phrasing. Begin your reply with a short section titled English coaching containing (1) a corrected, more natural version of the message, and (2) one to three concrete tips to improve the writing. Keep it concise, then fully address the request.'; $o = @{ hookSpecificOutput = @{ hookEventName = 'UserPromptSubmit'; additionalContext = $c } }; $o | ConvertTo-Json -Compress"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              ".claude/hooks/capture-writing.ps1"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
