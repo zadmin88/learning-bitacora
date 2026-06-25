@@ -3,21 +3,37 @@ import { v } from "convex/values";
 import { getAuthUser } from "./lib/utils";
 import { fsrs, Rating } from "ts-fsrs";
 
+// Concepts created by the writing coach carry this tag. They study a different
+// skill (writing/grammar patterns) than manually-added or journal vocabulary,
+// so the review queue is split into two tracks keyed off it.
+export const WRITING_COACH_TAG = "writing-coach";
+
+const trackArg = v.optional(v.union(v.literal("vocab"), v.literal("writing")));
+
+function trackOf(tags: string[] | undefined): "vocab" | "writing" {
+  return tags?.includes(WRITING_COACH_TAG) ? "writing" : "vocab";
+}
+
 export const getQueue = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { track: trackArg },
+  handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
     const now = Date.now();
-    const concepts = await ctx.db
+    const due = await ctx.db
       .query("concepts")
       .withIndex("by_user_review", (q) =>
         q.eq("userId", user._id).lte("nextReview", now)
       )
-      .take(20);
+      .collect();
+
+    // Index returns the soonest-due first; keep that order within the track.
+    const selected = (
+      args.track ? due.filter((c) => trackOf(c.tags) === args.track) : due
+    ).slice(0, 20);
 
     // Load parent entry content for context
     const conceptsWithContext = await Promise.all(
-      concepts.map(async (concept) => {
+      selected.map(async (concept) => {
         const entry = concept.entryId ? await ctx.db.get(concept.entryId) : null;
         return {
           ...concept,
@@ -31,17 +47,18 @@ export const getQueue = query({
 });
 
 export const getQueueCount = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { track: trackArg },
+  handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
     const now = Date.now();
-    const concepts = await ctx.db
+    const due = await ctx.db
       .query("concepts")
       .withIndex("by_user_review", (q) =>
         q.eq("userId", user._id).lte("nextReview", now)
       )
       .collect();
-    return concepts.length;
+    if (!args.track) return due.length;
+    return due.filter((c) => trackOf(c.tags) === args.track).length;
   },
 });
 

@@ -36,9 +36,13 @@ function shuffleArray<T>(array: T[]): T[] {
   return array;
 }
 
-export function ReviewSession() {
+export function ReviewSession({
+  track,
+}: {
+  track?: "vocab" | "writing";
+}) {
   const { user } = useCurrentUser();
-  const queue = useQuery(api.review.getQueue);
+  const queue = useQuery(api.review.getQueue, { track });
   const submitReview = useMutation(api.review.submitReview);
   const generateChallenge = useAction(api.ai.challenge.generateChallenge);
   const regenerateChallenge = useAction(api.ai.challenge.regenerateChallenge);
@@ -166,6 +170,7 @@ export function ReviewSession() {
 
   // Empty queue (use live queue for this check, not snapshot)
   if (queue.length === 0 && !sessionQueue.current) {
+    const isWriting = track === "writing";
     return (
       <div className="text-center py-12 max-w-md mx-auto">
         <Brain className="h-12 w-12 text-emerald mx-auto mb-4" />
@@ -173,12 +178,13 @@ export function ReviewSession() {
           ¡Todo al día!
         </h3>
         <p className="text-muted-foreground text-sm mb-4">
-          No hay conceptos pendientes de repaso. Escribe más entradas en tu diario para
-          crear nuevos conceptos que repasar.
+          {isWriting
+            ? "No hay temas de escritura pendientes. Envía más textos al coach para recibir nuevos temas que repasar."
+            : "No hay conceptos pendientes de repaso. Escribe más entradas en tu diario para crear nuevos conceptos que repasar."}
         </p>
-        <Link href="/journal/new">
+        <Link href={isWriting ? "/coach" : "/journal/new"}>
           <Button className="bg-primary hover:bg-blue-dark">
-            Escribir una Entrada
+            {isWriting ? "Ir al Coach" : "Escribir una Entrada"}
           </Button>
         </Link>
       </div>

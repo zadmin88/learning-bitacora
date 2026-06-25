@@ -37,7 +37,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { signOut } = useAuthActions();
   const { user } = useCurrentUser();
-  const reviewCount = useQuery(api.review.getQueueCount);
+  const reviewCount = useQuery(api.review.getQueueCount, {});
 
   return (
     <aside className="hidden md:flex flex-col w-64 border-r border-border bg-sidebar min-h-screen">

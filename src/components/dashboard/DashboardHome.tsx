@@ -17,7 +17,7 @@ import { es } from "date-fns/locale";
 export default function DashboardHome() {
   const { user } = useCurrentUser();
   const entries = useQuery(api.entries.list);
-  const reviewCount = useQuery(api.review.getQueueCount);
+  const reviewCount = useQuery(api.review.getQueueCount, {});
   const concepts = useQuery(api.concepts.listByUser, {});
 
   return (

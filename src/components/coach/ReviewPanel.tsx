@@ -120,8 +120,8 @@ export function ReviewPanel({ review }: { review: Doc<"writingReviews"> }) {
               Temas para estudiar
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              Añadidos a tu cola de repaso — aparecerán en{" "}
-              <span className="font-medium">Repasar</span>.
+              Añadidos a tu cola de repaso — aparecerán en la pestaña{" "}
+              <span className="font-medium">Escritura</span> de Repasar.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">

@@ -35,7 +35,7 @@ const moreItems = [
 
 export function MobileNav() {
   const pathname = usePathname();
-  const reviewCount = useQuery(api.review.getQueueCount);
+  const reviewCount = useQuery(api.review.getQueueCount, {});
   const [moreOpen, setMoreOpen] = useState(false);
 
   const isMoreActive = moreItems.some(
