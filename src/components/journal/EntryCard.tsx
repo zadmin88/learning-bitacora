@@ -156,8 +156,8 @@ export function EntryCard({ entry }: { entry: Entry }) {
       <Card className="animate-fade-in transition-all hover:shadow-md">
         <CardContent className="pt-4 pb-4">
           {/* Header */}
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0 flex-wrap">
               <span>{format(entry.createdAt, "d MMM yyyy", { locale: es })}</span>
               <span>•</span>
               <span>
@@ -165,7 +165,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
               </span>
               {entry.mood && !isEditing && <span>{entry.mood}</span>}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               {entry.overallLevel && (
                 <Badge variant="outline" className="text-xs capitalize">
                   {entry.overallLevel}

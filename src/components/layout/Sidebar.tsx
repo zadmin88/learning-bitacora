@@ -33,14 +33,19 @@ const navItems = [
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const { signOut } = useAuthActions();
   const { user } = useCurrentUser();
   const reviewCount = useQuery(api.review.getQueueCount, {});
 
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r border-border bg-sidebar min-h-screen">
+    <aside
+      className={cn(
+        "flex flex-col w-64 border-r border-border bg-sidebar min-h-screen",
+        className
+      )}
+    >
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <Link href="/">

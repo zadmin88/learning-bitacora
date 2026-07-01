@@ -22,8 +22,8 @@ export default function DashboardHome() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
-      <main className="flex-1 pb-16 md:pb-0">
+      <Sidebar className="hidden md:flex" />
+      <main className="flex-1 min-w-0 pb-16 md:pb-0">
         <TopBar title="Inicio" />
         <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
           {/* Welcome section */}
